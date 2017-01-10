@@ -1,7 +1,6 @@
 module HerokuCommands
   # Class for handling pipeline requests
   class Pipelines < HerokuCommand
-    include ChatOpsPatterns
     include PipelineResponse
 
     def initialize(command)
