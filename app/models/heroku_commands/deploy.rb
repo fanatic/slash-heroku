@@ -38,6 +38,22 @@ module HerokuCommands
       }
     end
 
+    def command_expired?
+      command.created_at > 60.seconds.ago
+    end
+
+    def handle_locked_application(error)
+      CommandExecutorJob
+        .set(wait: 2.seconds)
+        .perform_later(command_id: command.id) unless command_expired?
+
+      if command.processed_at.nil?
+        error_response_for_escobar(error)
+      else
+        {}
+      end
+    end
+
     # rubocop:disable Metrics/AbcSize
     def deploy_application
       if application && !pipelines[application]
@@ -60,7 +76,7 @@ module HerokuCommands
                        "#{deployment.repository}@#{branch}" \
                        "(#{deployment.sha[0..7]}) to #{environment}.")
         rescue Escobar::Heroku::BuildRequest::Error => e
-          error_response_for_escobar(e)
+          handle_locked_application(e)
         rescue StandardError => e
           error_response_for(e.message)
         end
