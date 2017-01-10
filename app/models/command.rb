@@ -22,7 +22,6 @@ class Command < ApplicationRecord
     postback_message(handler.response)
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
   def handler
     @handler ||= case task
                  when "auth"
@@ -37,7 +36,6 @@ class Command < ApplicationRecord
                    HerokuCommands::Help.new(self)
                  end
   end
-  # rubocop:enable Metrics/CycolmaticComplexity
 
   def description
     if application
