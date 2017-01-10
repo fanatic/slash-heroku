@@ -29,14 +29,10 @@ class Command < ApplicationRecord
                    HerokuCommands::Auth.new(self)
                  when "deploy"
                    HerokuCommands::Deploy.new(self)
-                 when "logs"
-                   HerokuCommands::Logs.new(self)
                  when "pipeline", "pipelines"
                    HerokuCommands::Pipelines.new(self)
                  when "releases"
                    HerokuCommands::Releases.new(self)
-                 when "where", "wcid"
-                   HerokuCommands::Where.new(self)
                  else # when "help"
                    HerokuCommands::Help.new(self)
                  end
