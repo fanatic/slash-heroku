@@ -59,6 +59,8 @@ module HerokuCommands
           response_for("<@#{user_id}> is <#{url}|deploying> " \
                        "#{deployment.repository}@#{branch}" \
                        "(#{deployment.sha[0..7]}) to #{environment}.")
+        rescue Escobar::Heroku::BuildRequest::Error => e
+          error_response_for_escobar(e)
         rescue StandardError => e
           error_response_for(e.message)
         end

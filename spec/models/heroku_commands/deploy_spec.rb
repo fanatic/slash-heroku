@@ -100,4 +100,49 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(command.response[:response_type]).to eql("in_channel")
     expect(command.response[:text]).to eql(message)
   end
+
+  it "prompts to unlock in the dashboard if the app is 2fa protected" do
+    command = heroku_handler_for("deploy hubot to production")
+    user = command.user
+    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
+    user.save
+    command.user.reload
+
+    response_info = fixture_data("api.heroku.com/account/info")
+    stub_request(:get, "https://api.heroku.com/account")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: response_info, headers: {})
+
+    response_info = fixture_data("api.heroku.com/pipelines/info")
+    stub_request(:get, "https://api.heroku.com/pipelines")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: response_info, headers: {})
+
+    response_info = fixture_data("api.heroku.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/pipeline-couplings")
+    stub_request(:get, "https://api.heroku.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/pipeline-couplings")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: response_info, headers: {})
+
+    response_info = fixture_data("api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa")
+    stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: response_info, headers: {})
+
+    stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa/config-vars")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 403, body: { id: "two_factor" }.to_json, headers: {})
+
+    expect(command.task).to eql("deploy")
+    expect(command.subtask).to eql("default")
+    expect(command.application).to eql("hubot")
+
+    command.run
+
+    expect(command.response[:text]).to be_nil
+    expect(command.response[:response_type]).to be_nil
+    attachments = [
+      { text: "<https://dashboard.heroku.com/apps/hubot|Enter your second factor>" }
+    ]
+    expect(command.response[:attachments]).to eql(attachments)
+  end
 end
