@@ -26,13 +26,26 @@ module HerokuCommands
     def run_on_subtask
       case subtask
       when "info"
-        pipeline_info
+        if pipeline.configured?
+          pipeline_info
+        else
+          {
+            attachments: [
+              { text: "<#{pipeline.heroku_permalink}|" \
+                      "Connect your pipeline to GitHub>" }
+            ]
+          }
+        end
       when "list", "default"
         response_for("You can deploy: #{pipelines.app_names.join(', ')}.")
       else
         response_for("pipeline:#{subtask} is currently unimplemented.")
       end
     rescue Escobar::GitHub::RepoNotFound
+      unable_to_access_repository_response
+    end
+
+    def unable_to_access_repository_response
       response_for("You're not authenticated with GitHub. " \
                    "<#{command.github_auth_url}|Fix that>.")
     end
