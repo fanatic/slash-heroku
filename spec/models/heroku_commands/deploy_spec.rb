@@ -55,6 +55,10 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
       .with(headers: default_heroku_headers(command.user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
 
+    stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa/config-vars")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: {}.to_json, headers: {})
+
     stub_request(:post, "https://api.heroku.com/apps/hubot/builds")
       .with(headers: default_heroku_headers(command.user.heroku_token))
       .to_return(status: 200, body: { id: "191853f6-0635-44cc-8d97-ef8feae0e178" }.to_json, headers: {})
