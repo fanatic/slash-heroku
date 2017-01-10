@@ -47,10 +47,9 @@ module HerokuCommands
     end
 
     def error_response_for_escobar(error)
-      url = "https://dashboard.heroku.com/apps/#{error.build_request.app.name}"
       {
         attachments: [
-          { text: "<#{url}|Enter your second factor>" }
+          { text: "<#{error.dashboard_url}|Enter your second factor>" }
         ]
       }
     end
