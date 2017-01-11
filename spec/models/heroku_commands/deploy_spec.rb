@@ -136,7 +136,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(command.response[:text]).to be_nil
     expect(command.response[:response_type]).to be_nil
     attachments = [
-      { text: "<https://dashboard.heroku.com/apps/hubot|Enter your second factor>" }
+      { text: "<https://dashboard.heroku.com/apps/hubot|Unlock hubot>" }
     ]
     expect(command.response[:attachments]).to eql(attachments)
   end

@@ -49,7 +49,8 @@ module HerokuCommands
     def error_response_for_escobar(error)
       {
         attachments: [
-          { text: "<#{error.dashboard_url}|Enter your second factor>" }
+          { text: "<#{error.dashboard_url}|Unlock " \
+                  "#{error.build_request.app.name}>" }
         ]
       }
     end
