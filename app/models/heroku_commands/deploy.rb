@@ -15,7 +15,8 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "deploy <pipeline>/<branch> to <env>/<roles> - deploy <pipeline>"
+        "deploy <pipeline>/<branch> to <stage>/<app-name> - " \
+        "deploy a branch to a pipeline"
       ]
     end
 
