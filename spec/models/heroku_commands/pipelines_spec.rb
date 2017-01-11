@@ -39,8 +39,10 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
 
     command.run
 
-    expect(command.response[:response_type]).to eql("in_channel")
-    expect(command.response[:text]).to eql(
+    expect(command.response[:response_type]).to be_nil
+    expect(command.response[:attachments].size).to eql(1)
+    attachment = command.response[:attachments].first
+    expect(attachment[:text]).to eql(
       "You can deploy: hubot, slash-heroku."
     )
   end

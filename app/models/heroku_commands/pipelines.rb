@@ -37,7 +37,11 @@ module HerokuCommands
           }
         end
       when "list", "default"
-        response_for("You can deploy: #{pipelines.app_names.join(', ')}.")
+        {
+          attachments: [
+            { text: "You can deploy: #{pipelines.app_names.join(', ')}." }
+          ]
+        }
       else
         response_for("pipeline:#{subtask} is currently unimplemented.")
       end
