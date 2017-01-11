@@ -46,6 +46,15 @@ module HerokuCommands
         attachments: [{ text: text, color: "#f00" }] }
     end
 
+    def error_response_for_escobar(error)
+      {
+        attachments: [
+          { text: "<#{error.dashboard_url}|Unlock " \
+                  "#{error.build_request.app.name}>" }
+        ]
+      }
+    end
+
     def response_for(text)
       { text: text, response_type: "in_channel" }
     end

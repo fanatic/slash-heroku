@@ -15,7 +15,8 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "deploy <pipeline>/<branch> to <env>/<roles> - deploy <pipeline>"
+        "deploy <pipeline>/<branch> to <stage>/<app-name> - " \
+        "deploy a branch to a pipeline"
       ]
     end
 
@@ -38,13 +39,28 @@ module HerokuCommands
       }
     end
 
+    def command_expired?
+      command.created_at < 60.seconds.ago
+    end
+
+    def handle_locked_application(error)
+      CommandExecutorJob
+        .set(wait: 2.seconds)
+        .perform_later(command_id: command.id) unless command_expired?
+
+      if command.processed_at.nil?
+        error_response_for_escobar(error)
+      else
+        {}
+      end
+    end
+
     # rubocop:disable Metrics/AbcSize
     def deploy_application
       if application && !pipelines[application]
         response_for("Unable to find a pipeline called #{application}")
       else
-        user_id    = command.user.slack_user_id
-        pipeline   = pipelines[application]
+        pipeline = pipelines[application]
 
         begin
           deployment = pipeline.create_deployment(branch, environment,
@@ -55,27 +71,19 @@ module HerokuCommands
             .set(wait: 10.seconds)
             .perform_later(deployment.to_job_json)
 
-          url = deployment.dashboard_build_output_url
-          response_for("<@#{user_id}> is <#{url}|deploying> " \
-                       "#{deployment.repository}@#{branch}" \
-                       "(#{deployment.sha[0..7]}) to #{environment}.")
+          {}
+        rescue Escobar::Heroku::BuildRequest::Error => e
+          handle_locked_application(e)
         rescue StandardError => e
           error_response_for(e.message)
         end
       end
     end
-
-    def deployment_complete_message(payload, sha)
-      url = payload[:target_url]
-      suffix = payload[:state] == "success" ? "was successful" : "failed"
-      user_id = command.user.slack_user_id
-      duration = Time.now.utc - command.created_at.utc
-
-      response_for("<@#{user_id}>'s <#{url}|#{environment}> deployment of " \
-                   "#{pipeline.github_repository}@#{branch}" \
-                   "(#{sha[0..7]}) #{suffix}. #{duration.round}s")
-    end
     # rubocop:enable Metrics/AbcSize
+
+    def deployment_complete_message(_payload, _sha)
+      {}
+    end
 
     def run_on_subtask
       case subtask
@@ -91,6 +99,7 @@ module HerokuCommands
       end
     rescue StandardError => e
       raise e if Rails.env.test?
+      Raven.capture_exception(e)
       response_for("Unable to fetch deployment info for #{application}.")
     end
 
