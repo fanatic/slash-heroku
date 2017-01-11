@@ -109,6 +109,7 @@ module HerokuCommands
       end
     rescue StandardError => e
       raise e if Rails.env.test?
+      Raven.capture_exception(e)
       response_for("Unable to fetch deployment info for #{application}.")
     end
 
