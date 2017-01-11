@@ -47,6 +47,8 @@ module HerokuCommands
     end
 
     def error_response_for_escobar(error)
+      Rails.logger.info source: :escobar, error: error.message
+
       {
         attachments: [
           { text: "<#{error.dashboard_url}|Unlock " \
