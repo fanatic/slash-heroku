@@ -1,7 +1,6 @@
 module HerokuCommands
   # Class for handling Deployment requests
   class Deploy < HerokuCommand
-    include ChatOpsPatterns
     include PipelineResponse
 
     attr_reader :info
@@ -10,7 +9,7 @@ module HerokuCommands
     def initialize(command)
       super(command)
 
-      @info = chat_deployment_request(command.command_text)
+      @info = Deployment.from_text(command.command_text)
     end
 
     def self.help_documentation

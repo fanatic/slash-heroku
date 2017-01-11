@@ -46,13 +46,34 @@ module HerokuCommands
         attachments: [{ text: text, color: "#f00" }] }
     end
 
-    def error_response_for_escobar(error)
+    def error_response_for_escobar_two_factor(error)
       {
         attachments: [
           { text: "<#{error.dashboard_url}|Unlock " \
                   "#{error.build_request.app.name}>" }
         ]
       }
+    end
+
+    def error_response_for_escobar_failed_commit_statuses(error)
+      {
+        response_type: "in_channel",
+        attachments: [
+          { text: error.message }
+        ]
+      }
+    end
+
+    def error_response_for_escobar(error)
+      case error.message
+      when /Commit status checks failed/i
+        error_response_for_escobar_failed_commit_statuses(error)
+      when /requires second factor/i
+        error_response_for_escobar_two_factor(error)
+      else
+        Rails.logger.info source: :escobar, error: error.message
+        {}
+      end
     end
 
     def response_for(text)
