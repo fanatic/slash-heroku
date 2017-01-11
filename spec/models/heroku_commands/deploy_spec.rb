@@ -143,7 +143,6 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     stub_request(:get, "https://api.github.com/repos/atmos/hubot/branches/production")
       .to_return(status: 200, body: response_info, headers: {})
 
-    url = "https://api.github.com/repos/atmos/hubot/deployments/4307227"
     stub_request(:post, "https://api.github.com/repos/atmos/hubot/deployments")
       .to_return(status: 409, body: { message: "Conflict: Commit status checks failed for master." }.to_json, headers: {})
 
@@ -161,8 +160,8 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
       "Unable to create GitHub deployments for atmos/hubot: " \
       "Conflict: Commit status checks failed for master."
     )
-    debugger
   end
+
   it "prompts to unlock in the dashboard if the app is 2fa protected" do
     command = heroku_handler_for("deploy hubot to production")
     user = command.user
