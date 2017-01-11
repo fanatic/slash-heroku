@@ -39,7 +39,7 @@ module HerokuCommands
     end
 
     def command_expired?
-      command.created_at > 60.seconds.ago
+      command.created_at < 60.seconds.ago
     end
 
     def handle_locked_application(error)
