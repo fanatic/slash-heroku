@@ -27,6 +27,11 @@ module HerokuCommands
       @environment ||= info.environment || pipeline.default_environment
     end
 
+    def default_heroku_application
+      @default_heroku_application ||=
+        pipeline.default_heroku_application(environment)
+    end
+
     def custom_payload
       {
         notify: {
@@ -62,13 +67,19 @@ module HerokuCommands
         pipeline = pipelines[application]
 
         begin
-          deployment = pipeline.create_deployment(branch, environment,
-                                                  forced, custom_payload)
-          deployment.command_id = command.id
+          app = default_heroku_application
+
+          build_request = app.build_request_for(pipeline)
+
+          heroku_build = build_request.create(
+            "deploy", environment, branch, forced, custom_payload
+          )
+
+          heroku_build.command_id = command.id
 
           DeploymentReaperJob
             .set(wait: 10.seconds)
-            .perform_later(deployment.to_job_json)
+            .perform_later(heroku_build.to_job_json)
 
           {}
         rescue Escobar::Heroku::BuildRequest::Error => e
