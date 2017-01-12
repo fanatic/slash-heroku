@@ -49,7 +49,7 @@ module HerokuCommands
 
     def handle_locked_application(error)
       CommandExecutorJob
-        .set(wait: 1.second)
+        .set(wait: 0.5.seconds)
         .perform_later(command_id: command.id) unless command_expired?
 
       if command.processed_at.nil?
@@ -75,6 +75,7 @@ module HerokuCommands
 
         begin
           app = default_heroku_application
+          app.preauth(second_factor) if second_factor
 
           build_request = app.build_request_for(pipeline)
 
