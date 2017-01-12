@@ -59,6 +59,13 @@ module HerokuCommands
       end
     end
 
+    def reap_heroku_build(heroku_build)
+      DeploymentReaperJob
+        .set(wait: 10.seconds)
+        .perform_later(heroku_build.to_job_json)
+      {}
+    end
+
     # rubocop:disable Metrics/AbcSize
     def deploy_application
       if application && !pipelines[application]
@@ -77,11 +84,7 @@ module HerokuCommands
 
           heroku_build.command_id = command.id
 
-          DeploymentReaperJob
-            .set(wait: 10.seconds)
-            .perform_later(heroku_build.to_job_json)
-
-          {}
+          reap_heroku_build(heroku_build)
         rescue Escobar::Heroku::BuildRequest::Error => e
           handle_locked_application(e)
         rescue StandardError => e
