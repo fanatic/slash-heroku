@@ -49,7 +49,7 @@ module HerokuCommands
 
     def handle_locked_application(error)
       CommandExecutorJob
-        .set(wait: 2.seconds)
+        .set(wait: 1.seconds)
         .perform_later(command_id: command.id) unless command_expired?
 
       if command.processed_at.nil?
