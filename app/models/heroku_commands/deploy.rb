@@ -27,73 +27,13 @@ module HerokuCommands
       @environment ||= info.environment || pipeline.default_environment
     end
 
-    def default_heroku_application
-      @default_heroku_application ||=
-        pipeline.default_heroku_application(environment)
-    end
-
-    def custom_payload
-      {
-        notify: {
-          room: command.channel_name,
-          user: command.user.slack_user_id,
-          team_id: command.team_id,
-          user_name: command.user.slack_user_name
-        }
-      }
-    end
-
-    def command_expired?
-      command.created_at < 60.seconds.ago
-    end
-
-    def handle_locked_application(error)
-      CommandExecutorJob
-        .set(wait: 0.5.seconds)
-        .perform_later(command_id: command.id) unless command_expired?
-
-      if command.processed_at.nil?
-        error_response_for_escobar(error)
-      else
-        {}
-      end
-    end
-
-    def reap_heroku_build(heroku_build)
-      DeploymentReaperJob
-        .set(wait: 10.seconds)
-        .perform_later(heroku_build.to_job_json)
-      {}
-    end
-
-    # rubocop:disable Metrics/AbcSize
     def deploy_application
       if application && !pipelines[application]
         response_for("Unable to find a pipeline called #{application}")
       else
-        pipeline = pipelines[application]
-
-        begin
-          app = default_heroku_application
-          app.preauth(second_factor) if second_factor
-
-          build_request = app.build_request_for(pipeline)
-
-          heroku_build = build_request.create(
-            "deploy", environment, branch, forced, custom_payload
-          )
-
-          heroku_build.command_id = command.id
-
-          reap_heroku_build(heroku_build)
-        rescue Escobar::Heroku::BuildRequest::Error => e
-          handle_locked_application(e)
-        rescue StandardError => e
-          error_response_for(e.message)
-        end
+        DeploymentRequest.process(self)
       end
     end
-    # rubocop:enable Metrics/AbcSize
 
     def deployment_complete_message(_payload, _sha)
       {}
