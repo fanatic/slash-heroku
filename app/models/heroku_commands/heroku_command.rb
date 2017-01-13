@@ -71,6 +71,7 @@ module HerokuCommands
       when /requires second factor/i
         error_response_for_escobar_two_factor(error)
       else
+        Raven.capture_exception(error)
         Rails.logger.info source: :escobar, error: error.message
         {}
       end

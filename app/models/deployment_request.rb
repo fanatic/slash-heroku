@@ -73,6 +73,8 @@ class DeploymentRequest
   def process
     heroku_application.preauth(second_factor) if second_factor
 
+    Rails.logger.info custom_payload
+
     heroku_build = heroku_build_request.create(
       "deploy", environment, branch, forced, custom_payload
     )
@@ -83,6 +85,7 @@ class DeploymentRequest
   rescue Escobar::Heroku::BuildRequest::Error => e
     handle_escobar_exception(e)
   rescue StandardError => e
+    Raven.capture_exception(e)
     command.error_response_for(e.message)
   end
   # rubocop:enable Metrics/AbcSize
