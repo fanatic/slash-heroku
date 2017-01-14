@@ -47,6 +47,7 @@ module Escobar
           request.body = body.to_json
         end
 
+        Rails.logger.info action: :github_post_success, response: response
         JSON.parse(response.body)
       rescue StandardError
         Rails.logger.info action: :github_post, response: response
