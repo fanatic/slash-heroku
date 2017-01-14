@@ -37,6 +37,21 @@ module Escobar
         Rails.logger.info action: :create_github_deployment_status, body: payload
         post("#{uri.path}/statuses", payload)
       end
+
+      def post(path, body)
+        response = client.post do |request|
+          request.url path
+          request.headers["Accept"] = accept_headers
+          request.headers["Content-Type"] = "application/json"
+          request.headers["Authorization"] = "token #{token}"
+          request.body = body.to_json
+        end
+
+        JSON.parse(response.body)
+      rescue StandardError
+        Rails.logger.info action: :github_post, response: response
+        response && response.body
+      end
     end
   end
 end
