@@ -122,5 +122,12 @@
   "scripts": {
     "postdeploy": "bundle exec rake db:migrate"
   },
-  "buildpacks": []
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-ruby.git"
+    }
+  ]
 }
