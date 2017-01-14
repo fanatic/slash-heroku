@@ -13,6 +13,25 @@ module Escobar
         Rails.logger.info action: :create_heroku_build, body: body
         app.client.heroku.post("/apps/#{app.name}/builds", body)
       end
+
+      def post(path, body)
+        response = client.post do |request|
+          request.url path
+          request.headers["Accept"] = heroku_accept_header(3)
+          request.headers["Accept-Encoding"] = ""
+          request.headers["Content-Type"]    = "application/json"
+          if token
+            request.headers["Authorization"] = "Bearer #{token}"
+          end
+          request.body = body.to_json
+        end
+
+        Rails.logger.info action: :heroku_post, body: response
+
+        JSON.parse(response.body)
+      rescue StandardError
+        response && response.body
+      end
     end
   end
   module GitHub
@@ -27,7 +46,7 @@ module Escobar
           environment: options[:environment] || "staging",
           description: "Shipped from chat with slash-heroku"
         }
-        Rails.logger.info action: :create_githun_deployment, body: body
+        Rails.logger.info action: :create_github_deployment, body: body
 
         post("/repos/#{name_with_owner}/deployments", body)
       end
