@@ -73,17 +73,20 @@
       "generator": "secret"
     },
     "RBNACL_SECRET": {
-      "description": "The secret used for writing encrypted values to the database. Generate with 'dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64'."
+      "description": "The secret used for writing encrypted values to the database. Generate with 'dd if=/dev/urandom bs=32 count=1 2>/dev/null | openssl base64'.",
+      "required": false
     },
     "REDIS_URL": {
       "description": "The URL for the Heroku Redis install that sidekiq uses. Leave this alone.",
       "value": "redis://"
     },
     "ROLLBAR_ACCESS_TOKEN": {
-      "description": "The token for your rollbar project."
+      "description": "The token for your rollbar project.",
+      "required": false
     },
     "SLACK_APP_URL": {
-      "description": "The direct link to your app in the Slack App Store"
+      "description": "The direct link to your app in the Slack App Store",
+      "value": "https://slack.com/apps/A0YJZJA3E-heroku-chatops-for-slack-beta"
     },
     "SLACK_OAUTH_ID": {
       "description": "The Slack OAuth client id for being an OAuth consumer",
