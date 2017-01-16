@@ -8,6 +8,7 @@ class DeploymentReaperJob < ApplicationJob
 
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/PerceivedComplexity
   def perform(*args_list)
     args = args_list.first
 
@@ -27,14 +28,26 @@ class DeploymentReaperJob < ApplicationJob
       artifact = { sha: sha, slug: build.info["slug"]["id"], repo: repo }
       Rails.logger.info "Build Complete: #{artifact.to_json}"
 
-      payload = {
-        state: "failure",
-        target_url:  build_url(app_name, build_id),
-        description: "Chat deployment complete. slash-heroku"
-      }
-      payload[:state] = "success" if build.status == "succeeded"
+      if build.releasing?
+        payload = {
+          state: "pending",
+          target_url:  build_url(app_name, build_id),
+          description: "Build phase completed. Running release phase."
+        }
+        pipeline.create_deployment_status(deployment_url, payload)
+        ReleaseReaper.perform_later(
+          args.merge(release_id: build.release_id)
+        )
+      else
+        payload = {
+          state: "failure",
+          target_url:  build_url(app_name, build_id),
+          description: "Build phase completed. slash-heroku"
+        }
+        payload[:state] = "success" if build.status == "succeeded"
 
-      pipeline.create_deployment_status(deployment_url, payload)
+        pipeline.create_deployment_status(deployment_url, payload)
+      end
     elsif command.created_at > 15.minutes.ago
       DeploymentReaperJob.set(wait: 10.seconds).perform_later(args)
     else
@@ -52,4 +65,5 @@ class DeploymentReaperJob < ApplicationJob
   end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/PerceivedComplexity
 end
