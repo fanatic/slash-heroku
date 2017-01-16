@@ -26,19 +26,20 @@ class DeploymentReaperJob < ApplicationJob
     build = pipeline.reap_build(app_name, build_id)
     if build
       artifact = { sha: sha, slug: build.info["slug"]["id"], repo: repo }
-      Rails.logger.info "Build Complete: #{artifact.to_json}"
 
       if build.releasing?
+        Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
         payload = {
           state: "pending",
           target_url:  build_url(app_name, build_id),
           description: "Build phase completed. Running release phase."
         }
         pipeline.create_deployment_status(deployment_url, payload)
-        ReleaseReaper.perform_later(
+        ReleaseReaperJob.perform_later(
           args.merge(release_id: build.release_id)
         )
       else
+        Rails.logger.info "Build Complete: #{artifact.to_json}."
         payload = {
           state: "failure",
           target_url:  build_url(app_name, build_id),
