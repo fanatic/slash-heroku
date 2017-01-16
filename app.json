@@ -120,7 +120,9 @@
     }
   ],
   "scripts": {
-    "postdeploy": "bundle exec rake db:migrate"
+    "postdeploy": "bundle exec rake db:migrate",
+    "test-setup": "bundle install --with test",
+    "test": "bin/cibuild"
   },
   "buildpacks": [
     {
