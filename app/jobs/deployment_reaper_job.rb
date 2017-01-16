@@ -22,9 +22,9 @@ class DeploymentReaperJob < ApplicationJob
     command  = Command.find(command_id)
     pipeline = command.handler.pipelines[name]
 
-    info = pipeline.reap_build(app_name, build_id)
-    if info
-      artifact = { sha: sha, slug: info["slug"]["id"], repo: repo }
+    build = pipeline.reap_build(app_name, build_id)
+    if build
+      artifact = { sha: sha, slug: build.info["slug"]["id"], repo: repo }
       Rails.logger.info "Build Complete: #{artifact.to_json}"
 
       payload = {
@@ -32,7 +32,7 @@ class DeploymentReaperJob < ApplicationJob
         target_url:  build_url(app_name, build_id),
         description: "Chat deployment complete. slash-heroku"
       }
-      payload[:state] = "success" if info["status"] == "succeeded"
+      payload[:state] = "success" if build.status == "succeeded"
 
       pipeline.create_deployment_status(deployment_url, payload)
     elsif command.created_at > 15.minutes.ago
