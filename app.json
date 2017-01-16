@@ -109,16 +109,6 @@
       "value": "kolkrabbi.heroku.com"
     }
   },
-  "formation": [
-    {
-      "process": "web",
-      "quantity": 1
-    },
-    {
-      "process": "worker",
-      "quantity": 1
-    }
-  ],
   "scripts": {
     "postdeploy": "bundle exec rake db:migrate",
     "test-setup": "bundle install --with test",
