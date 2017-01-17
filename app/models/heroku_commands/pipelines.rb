@@ -22,6 +22,19 @@ module HerokuCommands
       response_for("Unable to fetch pipeline info for #{application}.")
     end
 
+    def default_pipelines_for_user
+      if pipelines
+        {
+          attachments: [
+            { text: "You can deploy: #{pipelines.app_names.join(', ')}." }
+          ]
+        }
+      else
+        response_for("You're not authenticated with GitHub yet. " \
+                     "<#{command.github_auth_url}|Fix that>.")
+      end
+    end
+
     def run_on_subtask
       case subtask
       when "info"
@@ -36,16 +49,7 @@ module HerokuCommands
           }
         end
       when "list", "default"
-        if pipelines
-          {
-            attachments: [
-              { text: "You can deploy: #{pipelines.app_names.join(', ')}." }
-            ]
-          }
-        else
-          response_for("You're not authenticated with GitHub yet. " \
-                       "<#{command.github_auth_url}|Fix that>.")
-        end
+        default_pipelines_for_user
       else
         response_for("pipeline:#{subtask} is currently unimplemented.")
       end
