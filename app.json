@@ -113,13 +113,5 @@
     "postdeploy": "bundle exec rake db:migrate",
     "test-setup": "bundle install --with test",
     "test": "bin/cibuild"
-  },
-  "buildpacks": [
-    {
-      "url": "heroku/nodejs"
-    },
-    {
-      "url": "heroku/ruby"
-    }
-  ]
+  }
 }
