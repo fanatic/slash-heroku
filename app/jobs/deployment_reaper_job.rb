@@ -2,19 +2,20 @@
 class DeploymentReaperJob < ApplicationJob
   queue_as :default
 
-  def build_url(app_id, build_id)
-    "https://dashboard.heroku.com/apps/#{app_id}/activity/builds/#{build_id}"
+  def build_url(app_name, build_id)
+    "https://dashboard.heroku.com/apps/#{app_name}/activity/builds/#{build_id}"
   end
 
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/PerceivedComplexity
   def perform(*args_list)
     args = args_list.first
 
     sha            = args.fetch(:sha)
     repo           = args.fetch(:repo)
     name           = args.fetch(:name)
-    app_id         = args.fetch(:app_id)
+    app_name       = args.fetch(:app_name)
     build_id       = args.fetch(:build_id)
     command_id     = args.fetch(:command_id)
     deployment_url = args.fetch(:deployment_url)
@@ -22,24 +23,31 @@ class DeploymentReaperJob < ApplicationJob
     command  = Command.find(command_id)
     pipeline = command.handler.pipelines[name]
 
-    info = pipeline.reap_build(app_id, build_id)
-    if info
-      artifact = { sha: sha, slug: info["slug"]["id"], repo: repo }
-      Rails.logger.info "Build Complete: #{artifact.to_json}"
+    build = pipeline.reap_build(app_name, build_id)
+    if build
+      artifact = { sha: sha, slug: build.info["slug"]["id"], repo: repo }
 
-      payload = {
-        state: "failure",
-        target_url:  build_url(app_id, build_id),
-        description: "Chat deployment complete. slash-heroku"
-      }
-      payload[:state] = "success" if info["status"] == "succeeded"
+      if build.releasing?
+        Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
+        payload = {
+          state: "pending",
+          target_url:  build_url(app_name, build_id),
+          description: "Build phase completed. Running release phase."
+        }
+        pipeline.create_deployment_status(deployment_url, payload)
+        ReleaseReaperJob.perform_later(
+          args.merge(release_id: build.release_id)
+        )
+      else
+        Rails.logger.info "Build Complete: #{artifact.to_json}."
+        payload = {
+          state: "failure",
+          target_url:  build_url(app_name, build_id),
+          description: "Build phase completed. slash-heroku"
+        }
+        payload[:state] = "success" if build.status == "succeeded"
 
-      pipeline.create_deployment_status(deployment_url, payload)
-
-      handler = command.handler
-      if handler
-        response = handler.deployment_complete_message(payload, sha)
-        command.postback_message(response)
+        pipeline.create_deployment_status(deployment_url, payload)
       end
     elsif command.created_at > 15.minutes.ago
       DeploymentReaperJob.set(wait: 10.seconds).perform_later(args)
@@ -47,15 +55,17 @@ class DeploymentReaperJob < ApplicationJob
       Rails.logger.info "Build expired for command: #{command.id}"
       payload = {
         state: "failure",
-        target_url:  build_url(app_id, build_id),
+        target_url:  build_url(app_name, build_id),
         description: "Heroku build took longer than 15 minutes."
       }
       pipeline.create_deployment_status(deployment_url, payload)
     end
   rescue StandardError => e
+    Raven.capture_exception(e)
     Rails.logger.info e.inspect
     Rails.logger.info "ArgList: #{args_list.inspect}"
   end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/PerceivedComplexity
 end
