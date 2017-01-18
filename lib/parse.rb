@@ -28,13 +28,14 @@ module Parse
     end
 
     def sha_and_ref_hash
-      deploy_list.each_with_object(Hash.new(0)) do |deploy, hash|
-        sha = deploy["sha"]
-        shortened_sha = sha[0..6]
-        ref = deploy["ref"]
-        ref = shortened_sha if sha == ref
-        hash[shortened_sha] = ref
-      end
+      @sha_and_ref_hash ||=
+        deploy_list.each_with_object(Hash.new(0)) do |deploy, hash|
+          sha = deploy["sha"]
+          shortened_sha = sha[0..6]
+          ref = deploy["ref"]
+          ref = shortened_sha if sha == ref
+          hash[shortened_sha] = ref
+        end
     end
   end
 
