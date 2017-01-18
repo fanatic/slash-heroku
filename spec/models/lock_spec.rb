@@ -7,42 +7,42 @@ RSpec.describe Lock do
   end
 
   it "locks" do
-    l = Lock.new("test")
-    l.lock
-    expect(l).to be_locked
+    lock = Lock.new("test")
+    lock.lock
+    expect(lock).to be_locked
   end
 
   it "can be unlocked with lock_value" do
-    l = Lock.new("test")
-    lock_value = l.lock
-    expect(l).to be_locked
-    l.unlock(lock_value)
-    expect(l).to_not be_locked
+    lock = Lock.new("test")
+    lock_value = lock.lock
+    expect(lock).to be_locked
+    lock.unlock(lock_value)
+    expect(lock).to_not be_locked
   end
 
   it "can't lock twice" do
-    l = Lock.new("test")
-    expect(l.lock).to_not be_nil
-    expect(l.lock).to be_nil
+    lock = Lock.new("test")
+    expect(lock.lock).to_not be_nil
+    expect(lock.lock).to be_nil
   end
 
   it "is unlocked after an hour" do
-    l = Lock.new("test")
-    l.lock
-    expect(l).to be_locked
+    lock = Lock.new("test")
+    lock.lock
+    expect(lock).to be_locked
     # We expect this to run in less than a second.
     expect(Redis.new.ttl("test").to_i).to be >= 3599
     expect(Redis.new.ttl("test").to_i).to be <= 3600
   end
 
   it "is lockable again after expiration" do
-    l = Lock.new("test")
-    l.lock
-    expect(l).to be_locked
+    lock = Lock.new("test")
+    lock.lock
+    expect(lock).to be_locked
     Redis.new.expire("test", 1)
     sleep(1)
-    expect(l).to_not be_locked
-    expect(l.lock).to_not be_nil
+    expect(lock).to_not be_locked
+    expect(lock.lock).to_not be_nil
   end
 
   it "locks for a deployment" do
@@ -52,10 +52,10 @@ RSpec.describe Lock do
   end
 
   it "unlocks for a deployment" do
-    d = Deployment.new
-    value = Lock.lock_deployment(d)
+    deployment = Deployment.new
+    value = Lock.lock_deployment(deployment)
     expect do
-      Lock.unlock_deployment(d, value)
+      Lock.unlock_deployment(deployment, value)
     end.to change { Redis.new.keys("deployment-lock:*").size }.by(-1)
   end
 end
