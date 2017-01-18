@@ -4,6 +4,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   include SlashHeroku::Support::Helpers::Api
 
   before do
+    Lock.clear_deployment_locks!
   end
 
   def heroku_handler_for(text)
@@ -205,5 +206,28 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
       { text: "<https://dashboard.heroku.com/apps/hubot|Unlock hubot>" }
     ]
     expect(command.response[:attachments]).to eql(attachments)
+  end
+
+  it "locks on second attempt" do
+    command = heroku_handler_for("deploy hubot to production")
+    command.user.github_token = SecureRandom.hex(24)
+    command.user.save
+
+    response_info = fixture_data("api.heroku.com/pipelines/info")
+    stub_request(:get, "https://api.heroku.com/pipelines")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: response_info, headers: {})
+
+    response_info = fixture_data("api.heroku.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/pipeline-couplings")
+    stub_request(:get, "https://api.heroku.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/pipeline-couplings")
+      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .to_return(status: 200, body: response_info, headers: {})
+
+    # Fake the lock
+    Lock.lock_deployment(command.info)
+
+    command.run
+    expect(command.response[:text])
+      .to eql("Someone is already deploying to hubot/production")
   end
 end

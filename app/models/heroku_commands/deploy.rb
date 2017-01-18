@@ -3,7 +3,7 @@ module HerokuCommands
   class Deploy < HerokuCommand
     include PipelineResponse
 
-    attr_reader :info
+    attr_reader :info, :lock_value
     delegate :application, :branch, :forced, :hosts, :second_factor, to: :@info
 
     def initialize(command)
@@ -31,8 +31,11 @@ module HerokuCommands
       if application && !pipelines[application]
         response_for("Unable to find a pipeline called #{application}")
       else
+        return lock_was_not_acquired_message unless acquire_lock
         DeploymentRequest.process(self)
       end
+    ensure
+      release_lock
     end
 
     def deployment_complete_message(_payload, _sha)
@@ -60,6 +63,19 @@ module HerokuCommands
     def repository_markup(deploy)
       name_with_owner = deploy.github_repository
       "<https://github.com/#{name_with_owner}|#{name_with_owner}>"
+    end
+
+    def lock_was_not_acquired_message
+      msg = "Someone is already deploying to #{application}/#{environment}"
+      response_for(msg)
+    end
+
+    def release_lock
+      Lock.unlock_deployment(info, lock_value)
+    end
+
+    def acquire_lock
+      @lock_value = Lock.lock_deployment(info)
     end
   end
 end
