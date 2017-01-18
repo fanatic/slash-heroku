@@ -2,8 +2,8 @@ require "rails_helper"
 require_relative "../../lib/parse.rb"
 
 RSpec.describe Parse::Releases do
-  describe ".all" do
-    it "returns a list of releases with heroku and github information" do
+  describe ".markdown" do
+    it "returns a markdown of releases with heroku and github information" do
       releases =
         decoded_fixture_data("api.heroku.com/releases/slash-h-production/list")
       deploys =
@@ -11,20 +11,19 @@ RSpec.describe Parse::Releases do
           "api.github.com/repos/atmos/slash-heroku/deployments"
         )
 
-      releases_list = Parse::Releases.new(releases, deploys).all
-      expect(releases_list.count).to eq(10)
+      releases_list = Parse::Releases.new(releases, deploys).markdown
+      expect(releases_list.split("\n").size).to eql(10)
 
-      release_with_sha_and_ref = releases_list.first
-      expect(release_with_sha_and_ref.sha).to eq("e046008")
-      expect(release_with_sha_and_ref.ref).to eq("more-debug-info")
-
-      config_change = releases_list[3]
-      expect(config_change.sha).to eq(nil)
-      expect(config_change.ref).to eq(nil)
-
-      release_with_no_ref = releases_list.last
-      expect(release_with_no_ref.sha).to eq("a2fa2f9")
-      expect(release_with_no_ref.ref).to eq("a2fa2f9")
+      # rubocop:disable LineLength
+      branch_link = "<https://github.com/heroku/reponame/tree/more-debug-info|more-debug-info>"
+      expect(releases_list)
+        .to include("v149 - Deploy e046008 - #{branch_link} - corey@heroku.com")
+      expect(releases_list)
+        .to include("v146 - Update REDIS by heroku-redis - heroku-redis@addons.heroku.com")
+      sha_link = "<https://github.com/heroku/reponame/tree/a2fa2f9|a2fa2f9>"
+      expect(releases_list)
+        .to include("v140 - Deploy a2fa2f9 - #{sha_link} - corey@heroku.com - 5 days")
+      # rubocop:enable LineLength
     end
   end
 end

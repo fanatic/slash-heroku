@@ -8,10 +8,10 @@ module Parse
       @deploys = deploys
     end
 
-    def all
-      releases.each_with_object([]) do |release_info, array|
-        array << Release.new(release_info, GitHubRefs.new(deploys))
-      end
+    def markdown
+      releases.map do |release|
+        Release.new(release, GitHubRefs.new(deploys)).row_text
+      end.join("\n")
     end
   end
 
@@ -41,11 +41,40 @@ module Parse
 
   # Returns information about a single release
   class Release
+    include ActionView::Helpers::DateHelper
     attr_reader :release_info, :github_refs
 
     def initialize(release_info, github_refs)
       @release_info = release_info
       @github_refs = github_refs
+    end
+
+    def row_text
+      "v#{version} - #{description} - " \
+        "#{optional_branch_link}" \
+          "#{email} - " \
+            "#{created_at}"
+    end
+
+    def optional_branch_link
+      return unless ref
+      "<https://github.com/heroku/#{repo_name}/tree/#{ref}|#{ref}> - "
+    end
+
+    def repo_name
+      "reponame"
+    end
+
+    def version
+      release_info["version"]
+    end
+
+    def email
+      release_info["user"]["email"]
+    end
+
+    def created_at
+      time_ago_in_words(release_info["created_at"])
     end
 
     def sha
