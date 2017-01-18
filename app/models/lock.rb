@@ -1,3 +1,4 @@
+# Lock with Redis for a period of an hour or until unlock
 class Lock
   attr_reader :key
 
@@ -17,9 +18,8 @@ class Lock
 
   def unlock(lock_value)
     current_lock_value = redis.get(key)
-    if current_lock_value == lock_value
-      redis.del(key)
-    end
+    return if current_lock_value != lock_value
+    redis.del(key)
   end
 
   private
