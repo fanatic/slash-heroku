@@ -4,8 +4,12 @@ require_relative "../../lib/parse.rb"
 RSpec.describe Parse::Releases do
   describe ".all" do
     it "returns a list of releases with heroku and github information" do
-      releases = decoded_fixture_data("api.heroku.com/releases/slash-h-production/list")
-      deploys = decoded_fixture_data("api.github.com/repos/atmos/slash-heroku/deployments")
+      releases =
+        decoded_fixture_data("api.heroku.com/releases/slash-h-production/list")
+      deploys =
+        decoded_fixture_data(
+          "api.github.com/repos/atmos/slash-heroku/deployments"
+        )
 
       releases_list = Parse::Releases.new(releases, deploys).all
       expect(releases_list.count).to eq(10)
