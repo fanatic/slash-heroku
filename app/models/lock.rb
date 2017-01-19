@@ -4,7 +4,7 @@ class Lock
 
   def self.clear_deployment_locks!
     redis = Redis.new
-    redis.keys("deployment-lock:*").map { |k| redis.del(k) }
+    redis.keys("escobar-app-*").map { |k| redis.del(k) }
   end
 
   def self.lock_deployment(deployment)
