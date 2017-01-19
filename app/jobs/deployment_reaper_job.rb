@@ -9,8 +9,7 @@ class DeploymentReaperJob < ApplicationJob
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
   # rubocop:disable Metrics/PerceivedComplexity
-  def perform(*args_list)
-    args = args_list.first
+  def perform(args = {})
 
     sha            = args.fetch(:sha)
     repo           = args.fetch(:repo)
