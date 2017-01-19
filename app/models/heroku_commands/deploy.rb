@@ -1,7 +1,7 @@
 module HerokuCommands
   # Class for handling Deployment requests
   class Deploy < HerokuCommand
-    attr_reader :info, :lock_value
+    attr_reader :info
 
     delegate :application, :branch, :forced, :hosts, :second_factor, to: :@info
 
@@ -63,18 +63,18 @@ module HerokuCommands
       name_with_owner = deploy.github_repository
       "<https://github.com/#{name_with_owner}|#{name_with_owner}>"
     end
-    
+
     def lock_was_not_acquired_message
       msg = "Someone is already deploying to #{application}/#{environment}"
       response_for(msg)
     end
 
     def release_lock
-      Lock.unlock_deployment(info, lock_value)
+      Lock.unlock_deployment(info)
     end
 
     def acquire_lock
-      @lock_value = Lock.lock_deployment(info)
+      Lock.lock_deployment(info)
     end
 
     def pipeline

@@ -11,8 +11,8 @@ class Lock
     new(key(deployment)).lock
   end
 
-  def self.unlock_deployment(deployment, lock_value)
-    new(key(deployment)).unlock(lock_value)
+  def self.unlock_deployment(deployment)
+    new(key(deployment)).unlock
   end
 
   def self.key(deployment)
@@ -24,18 +24,14 @@ class Lock
   end
 
   def lock
-    lock_value = SecureRandom.hex
-    locked = redis.set(key, lock_value, nx: true, ex: timeout)
-    locked ? lock_value : nil
+    redis.set(key, SecureRandom.hex, nx: true, ex: timeout)
   end
 
   def locked?
     redis.exists(key)
   end
 
-  def unlock(lock_value)
-    current_lock_value = redis.get(key)
-    return if current_lock_value != lock_value
+  def unlock
     redis.del(key)
   end
 

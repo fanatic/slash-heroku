@@ -14,16 +14,16 @@ RSpec.describe Lock do
 
   it "can be unlocked with lock_value" do
     lock = Lock.new("test")
-    lock_value = lock.lock
+    lock.lock
     expect(lock).to be_locked
-    lock.unlock(lock_value)
+    lock.unlock
     expect(lock).to_not be_locked
   end
 
   it "can't lock twice" do
     lock = Lock.new("test")
-    expect(lock.lock).to_not be_nil
-    expect(lock.lock).to be_nil
+    expect(lock.lock).to be_truthy
+    expect(lock.lock).to be_falsey
   end
 
   it "is unlocked after an hour" do
@@ -42,7 +42,7 @@ RSpec.describe Lock do
     Redis.new.expire("test", 1)
     sleep(1)
     expect(lock).to_not be_locked
-    expect(lock.lock).to_not be_nil
+    expect(lock.lock).to be_truthy
   end
 
   it "locks for a deployment" do
@@ -53,9 +53,9 @@ RSpec.describe Lock do
 
   it "unlocks for a deployment" do
     deployment = Deployment.new
-    value = Lock.lock_deployment(deployment)
+    Lock.lock_deployment(deployment)
     expect do
-      Lock.unlock_deployment(deployment, value)
+      Lock.unlock_deployment(deployment)
     end.to change { Redis.new.keys("deployment-lock:*").size }.by(-1)
   end
 end
