@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 module HerokuCommands
   # Class for handling pipeline requests
   class Pipelines < HerokuCommand
@@ -21,10 +22,11 @@ module HerokuCommands
     end
 
     def default_pipelines_for_user
-      if pipelines
+      if available_pipelines
         {
           attachments: [
-            { text: "You can deploy: #{pipelines.app_names.join(', ')}." }
+            { text: "You can deploy: #{available_pipelines
+              .app_names.join(', ')}." }
           ]
         }
       else
@@ -149,8 +151,9 @@ module HerokuCommands
       user.pipeline_for(application)
     end
 
-    def pipelines
+    def available_pipelines
       user.pipelines
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

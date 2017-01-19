@@ -1,7 +1,6 @@
 module HerokuCommands
   # Class for handling Deployment requests
   class Deploy < HerokuCommand
-
     attr_reader :info
     delegate :application, :branch, :forced, :hosts, :second_factor, to: :@info
 
