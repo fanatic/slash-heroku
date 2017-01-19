@@ -1,8 +1,6 @@
 module HerokuCommands
   # Class for handling pipeline requests
   class Pipelines < HerokuCommand
-    include PipelineResponse
-
     def initialize(command)
       super(command)
     end
@@ -147,16 +145,12 @@ module HerokuCommands
     end
     # rubocop:enable Metrics/MethodLength
 
-    def pipeline_class
-      Pipeline.new(application, command.user.github_token, client.token)
-    end
-
     def pipeline
-      pipeline_class.pipeline
+      user.pipeline_for(application)
     end
 
     def pipelines
-      pipeline_class.pipelines
+      user.pipelines
     end
   end
 end

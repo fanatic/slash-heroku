@@ -41,7 +41,7 @@ module HerokuCommands
     def run_on_subtask
       case subtask
       when "default"
-        if pipelines
+        if pipeline
           deploy_application
         else
           response_for("You're not authenticated with GitHub yet. " \
@@ -61,15 +61,8 @@ module HerokuCommands
       "<https://github.com/#{name_with_owner}|#{name_with_owner}>"
     end
 
-    def pipeline_class
-      Pipeline.new(application, command.user.github_token, client.token)
-    end
     def pipeline
-      pipeline_class.pipeline
-    end
-
-    def pipelines
-      pipeline_class.pipelines
+      user.pipeline_for(application)
     end
   end
 end

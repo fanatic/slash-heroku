@@ -37,6 +37,16 @@ class User < ApplicationRecord
     @heroku_api ||= HerokuApi.new(heroku_token)
   end
 
+  def pipeline_for(application)
+    return unless pipelines
+    pipelines[application]
+  end
+
+  def pipelines
+    return unless github_token
+    Escobar::Client.new(github_token, heroku_api.token)
+  end
+
   def heroku_user_information
     return nil unless heroku_configured?
     heroku_api.user_information

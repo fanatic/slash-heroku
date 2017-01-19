@@ -1,5 +1,5 @@
 # Wrapper around Escobar pipeline info
-class Pipeline
+class EscobarClient
   attr_reader :application, :client_token, :github_token
   def initialize(application, github_token, client_token)
     @application = application
