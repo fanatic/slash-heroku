@@ -16,12 +16,20 @@ module HerokuCommands
       @response = case subtask
                   when "logout"
                     user.destroy
-                    response_for("Successfuly removed your user.")
+                    {
+                      attachments: [
+                        { text: "Successfull removed your user. :wink:" }
+                      ]
+                    }
                   when "whoami"
                     email = user.heroku_user_information &&
                             user.heroku_user_information["email"]
 
-                    response_for("You're authenticated as #{email} on Heroku.")
+                    {
+                      attachments: [
+                        { text: "You're authenticated as #{email} on Heroku." }
+                      ]
+                    }
                   else
                     help_for_task
                   end
