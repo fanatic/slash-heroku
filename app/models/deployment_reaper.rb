@@ -4,7 +4,9 @@ class DeploymentReaper
     :build_id, :command_id, :deployment_url
 
   def self.run(args)
-    new(args).reap
+    reaper = new(args)
+    reaper.reap
+    reaper
   end
 
   def initialize(args = {})
@@ -29,6 +31,10 @@ class DeploymentReaper
     else
       build_expired
     end
+  end
+
+  def build
+    @build ||= pipeline.reap_build(app_name, build_id)
   end
 
   private
@@ -78,10 +84,6 @@ class DeploymentReaper
 
   def pipeline
     command.handler.pipeline
-  end
-
-  def build
-    @build ||= pipeline.reap_build(app_name, build_id)
   end
 
   def artifact
