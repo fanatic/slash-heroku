@@ -59,4 +59,8 @@ RSpec.configure do |config|
   config.include(SlackActionsHelpers)
   config.include(OmniauthHelpers)
   config.include(FixtureHelpers)
+
+  def redis
+    @redis ||= Redis.new
+  end
 end
