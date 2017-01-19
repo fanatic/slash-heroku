@@ -16,7 +16,7 @@ module HerokuCommands
       @response = case subtask
                   when "logout"
                     user.destroy
-                    response_for("Successfuly removed your SlashHeroku user.")
+                    response_for("Successfuly removed your user.")
                   when "whoami"
                     email = user.heroku_user_information &&
                             user.heroku_user_information["email"]
