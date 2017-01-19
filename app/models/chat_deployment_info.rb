@@ -3,7 +3,7 @@ class ChatDeploymentInfo
   include ActiveModel::Model
 
   attr_writer :environment
-  attr_accessor :task, :application, :branch, :forced, :hosts, :second_factor
+  attr_accessor :task, :pipeline_name, :branch, :forced, :hosts, :second_factor
 
   def self.valid_slug
     "([-_\.0-9a-z]+)"
@@ -34,13 +34,13 @@ class ChatDeploymentInfo
     matches = deploy_pattern.match(text)
     return {} unless matches
     {
-      task:          matches[1],
-      forced:        matches[2] == "!",
-      application:   matches[3],
-      branch:        matches[4] || "master",
-      environment:   matches[5],
-      hosts:         matches[6],
-      second_factor: matches[7]
+      task:             matches[1],
+      forced:           matches[2] == "!",
+      pipeline_name:    matches[3],
+      branch:           matches[4] || "master",
+      environment:      matches[5],
+      hosts:            matches[6],
+      second_factor:    matches[7]
     }
   end
 
@@ -55,7 +55,7 @@ class ChatDeploymentInfo
   end
 
   def valid?
-    application.present?
+    pipeline_name.present?
   end
 
   def environment

@@ -5,7 +5,7 @@ class DeploymentRequest
     @command = command
   end
 
-  delegate :application, :branch, :environment,\
+  delegate :pipeline_name, :branch, :environment,\
     :forced, :hosts, :second_factor,\
     to: :@command
 

@@ -15,7 +15,7 @@ RSpec.describe ChatDeploymentInfo, type: :model do
     model = ChatDeploymentInfo.from_text("deploy hubot")
     expect(model).to be_valid
     expect(model).to_not be_forced
-    expect(model.application).to eql("hubot")
+    expect(model.pipeline_name).to eql("hubot")
     expect(model.environment).to be_nil
     expect(model.hosts).to be_nil
     expect(model.second_factor).to be_nil
