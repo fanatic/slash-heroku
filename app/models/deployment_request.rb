@@ -5,8 +5,7 @@ class DeploymentRequest
     @command_handler = command_handler
   end
 
-  delegate :application, :branch, :environment,\
-    :forced, :hosts, :second_factor,\
+  delegate :application, :branch, :environment, :forced, :hosts, :second_factor,
     to: :command_handler
 
   delegate :command, to: :command_handler
@@ -17,15 +16,36 @@ class DeploymentRequest
 
   def self.process(command_handler)
     request = new(command_handler)
-
     request.process
+  end
+
+  def process
+    heroku_application.preauth(second_factor) if second_factor
+
+    heroku_build = create_heroku_build
+    reap_heroku_build(heroku_build)
+  rescue Escobar::Heroku::BuildRequest::Error => e
+    handle_escobar_exception(e)
+  rescue StandardError => e
+    Raven.capture_exception(e)
+    command_handler.error_response_for(e.message)
+  end
+
+  private
+
+  def create_heroku_build
+    heroku_build = heroku_build_request.create(
+      "deploy", environment, branch, forced, notify_payload
+    )
+    heroku_build.command_id = command.id
+    heroku_build
   end
 
   def command_expired?
     command.created_at < 60.seconds.ago
   end
 
-  def custom_payload
+  def notify_payload
     {
       notify: {
         room: channel_name,
@@ -71,23 +91,4 @@ class DeploymentRequest
       .perform_later(heroku_build.to_job_json)
     {}
   end
-
-  # rubocop:disable Metrics/AbcSize
-  def process
-    heroku_application.preauth(second_factor) if second_factor
-
-    heroku_build = heroku_build_request.create(
-      "deploy", environment, branch, forced, custom_payload
-    )
-
-    heroku_build.command_id = command.id
-
-    reap_heroku_build(heroku_build)
-  rescue Escobar::Heroku::BuildRequest::Error => e
-    handle_escobar_exception(e)
-  rescue StandardError => e
-    Raven.capture_exception(e)
-    command_handler.error_response_for(e.message)
-  end
-  # rubocop:enable Metrics/AbcSize
 end
