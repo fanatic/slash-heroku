@@ -8,9 +8,7 @@ class ReleaseReaperJob < ApplicationJob
 
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
-  def perform(*args_list)
-    args = args_list.first
-
+  def perform(args = {})
     app_name       = args.fetch(:app_name)
     build_id       = args.fetch(:build_id)
     release_id     = args.fetch(:release_id)
