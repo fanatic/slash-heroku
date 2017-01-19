@@ -22,7 +22,7 @@ class DeploymentRequest
   end
 
   def command_expired?
-    command_handler.command.created_at < 60.seconds.ago
+    command.created_at < 60.seconds.ago
   end
 
   def custom_payload
@@ -56,9 +56,9 @@ class DeploymentRequest
   def handle_escobar_exception(error)
     CommandExecutorJob
       .set(wait: 0.5.seconds)
-      .perform_later(command_id: command_handler.command.id) unless command_expired?
+      .perform_later(command_id: command.id) unless command_expired?
 
-    if command_handler.command.processed_at.nil?
+    if command.processed_at.nil?
       command_handler.error_response_for_escobar(error)
     else
       {}
@@ -80,7 +80,7 @@ class DeploymentRequest
       "deploy", environment, branch, forced, custom_payload
     )
 
-    heroku_build.command_id = command_handler.command.id
+    heroku_build.command_id = command.id
 
     reap_heroku_build(heroku_build)
   rescue Escobar::Heroku::BuildRequest::Error => e
