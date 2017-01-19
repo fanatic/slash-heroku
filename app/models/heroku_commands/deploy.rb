@@ -75,6 +75,7 @@ module HerokuCommands
 
     def acquire_lock
       @lock_value = Lock.lock_deployment(info)
+    end
 
     def pipeline
       user.pipeline_for(application)
