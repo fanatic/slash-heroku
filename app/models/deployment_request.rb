@@ -1,25 +1,28 @@
 # A incoming deployment requests that's valid and available to release.
 class DeploymentRequest
-  attr_accessor :command
-  def initialize(command)
-    @command = command
+  attr_accessor :command_handler
+  def initialize(command_handler)
+    @command_handler = command_handler
   end
 
   delegate :application, :branch, :environment,\
     :forced, :hosts, :second_factor,\
-    to: :@command
+    to: :command_handler
 
-  delegate :channel_name, :team_id, to: "@command.command"
-  delegate :slack_user_id, :slack_user_name, to: "@command.command.user"
+  delegate :command, to: :command_handler
+  delegate :channel_name, :team_id, to: :command
 
-  def self.process(command)
-    request = new(command)
+  delegate :user, to: :command
+  delegate :slack_user_id, :slack_user_name, to: :user
+
+  def self.process(command_handler)
+    request = new(command_handler)
 
     request.process
   end
 
   def command_expired?
-    command.command.created_at < 60.seconds.ago
+    command_handler.command.created_at < 60.seconds.ago
   end
 
   def custom_payload
@@ -39,7 +42,7 @@ class DeploymentRequest
   end
 
   def pipeline
-    @pipeline ||= command.pipeline
+    @pipeline ||= command_handler.pipeline
   end
 
   def heroku_application
@@ -53,10 +56,10 @@ class DeploymentRequest
   def handle_escobar_exception(error)
     CommandExecutorJob
       .set(wait: 0.5.seconds)
-      .perform_later(command_id: command.command.id) unless command_expired?
+      .perform_later(command_id: command_handler.command.id) unless command_expired?
 
-    if command.command.processed_at.nil?
-      command.error_response_for_escobar(error)
+    if command_handler.command.processed_at.nil?
+      command_handler.error_response_for_escobar(error)
     else
       {}
     end
@@ -77,14 +80,14 @@ class DeploymentRequest
       "deploy", environment, branch, forced, custom_payload
     )
 
-    heroku_build.command_id = command.command.id
+    heroku_build.command_id = command_handler.command.id
 
     reap_heroku_build(heroku_build)
   rescue Escobar::Heroku::BuildRequest::Error => e
     handle_escobar_exception(e)
   rescue StandardError => e
     Raven.capture_exception(e)
-    command.error_response_for(e.message)
+    command_handler.error_response_for(e.message)
   end
   # rubocop:enable Metrics/AbcSize
 end
