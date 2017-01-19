@@ -7,8 +7,8 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "auth:login  - Display the email of the authenticated user."
-        "auth:logout - Delete your user and all commands you've run.",
+        "auth:login  - Display the email of the authenticated user.",
+        "auth:logout - Delete your user and all commands you've run."
       ]
     end
 
@@ -26,7 +26,7 @@ module HerokuCommands
                         { text: "Successfully removed your user. :wink:" }
                       ]
                     }
-                  when "login"
+                  when "whoami"
                     {
                       attachments: [
                         { text: "You're authenticated as #{email} on Heroku." }
