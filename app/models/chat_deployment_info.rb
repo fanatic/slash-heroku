@@ -1,5 +1,5 @@
 # Class for encapsulating a chat deployment request
-class Deployment
+class ChatDeploymentInfo
   include ActiveModel::Model
 
   attr_writer :environment
@@ -26,7 +26,7 @@ class Deployment
 
   def self.from_text(text)
     args = text_to_deployment_args(text)
-    Deployment.new(args)
+    new(args)
   end
 
   def self.text_to_deployment_args(text)

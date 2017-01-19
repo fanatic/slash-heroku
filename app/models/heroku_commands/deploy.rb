@@ -7,7 +7,7 @@ module HerokuCommands
     def initialize(command)
       super(command)
 
-      @info = Deployment.from_text(command.command_text)
+      @info = ChatDeploymentInfo.from_text(command.command_text)
     end
 
     def self.help_documentation
