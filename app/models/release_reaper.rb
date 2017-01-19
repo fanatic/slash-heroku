@@ -3,8 +3,10 @@ class ReleaseReaper
   attr_reader :args, :app_name, :build_id,
     :release_id, :command_id, :deployment_url
 
-  def self.reap(args)
-    new(args).reap
+  def self.run(args)
+    reaper = new(args)
+    reaper.reap
+    reaper
   end
 
   def initialize(args = {})
@@ -24,6 +26,10 @@ class ReleaseReaper
     else
       build_and_release_expired
     end
+  end
+
+  def release
+    @release ||= pipeline.reap_release(app_name, build_id, release_id)
   end
 
   private
@@ -59,10 +65,6 @@ class ReleaseReaper
 
   def pipeline
     command.handler.pipeline
-  end
-
-  def release
-    @release ||= pipeline.reap_release(app_name, build_id, release_id)
   end
 
   def build_url(app_name, build_id)

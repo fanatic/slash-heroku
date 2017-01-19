@@ -3,7 +3,7 @@ class ReleaseReaperJob < ApplicationJob
   queue_as :default
 
   def perform(args = {})
-    ReleaseReaper.reap(args)
+    ReleaseReaper.run(args)
   rescue StandardError => e
     Raven.capture_exception(e)
     Rails.logger.info e.inspect
