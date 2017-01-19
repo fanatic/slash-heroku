@@ -72,5 +72,9 @@ module HerokuCommands
     def available_pipelines
       user.pipelines
     end
+
+    def pipeline_name
+      application
+    end
   end
 end
