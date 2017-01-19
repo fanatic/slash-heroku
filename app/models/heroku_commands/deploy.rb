@@ -33,8 +33,6 @@ module HerokuCommands
         return lock_was_not_acquired_message unless acquire_lock
         DeploymentRequest.process(self)
       end
-    ensure
-      release_lock
     end
 
     def deployment_complete_message(_payload, _sha)
