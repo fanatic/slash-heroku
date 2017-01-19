@@ -2,21 +2,8 @@
 class Lock
   attr_reader :key
 
-  def self.clear_deployment_locks!
-    redis = Redis.new
-    redis.keys("escobar-app-*").map { |k| redis.del(k) }
-  end
-
-  def self.lock_deployment(deployment)
-    new(key(deployment)).lock
-  end
-
-  def self.unlock_deployment(deployment)
-    new(key(deployment)).unlock
-  end
-
-  def self.key(deployment)
-    "deployment-lock:#{deployment.application}-#{deployment.environment}"
+  def self.redis
+    @redis ||= Redis.new
   end
 
   def initialize(key)
@@ -42,6 +29,6 @@ class Lock
   end
 
   def redis
-    @redis ||= Redis.new
+    self.class.redis
   end
 end

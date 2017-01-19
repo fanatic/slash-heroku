@@ -3,7 +3,6 @@ require "rails_helper"
 RSpec.describe Lock do
   before do
     redis.del("test")
-    Lock.clear_deployment_locks!
   end
 
   it "locks" do
@@ -43,19 +42,5 @@ RSpec.describe Lock do
     sleep(1)
     expect(lock).to_not be_locked
     expect(lock.lock).to be_truthy
-  end
-
-  it "locks for a deployment" do
-    expect do
-      Lock.lock_deployment(Deployment.new)
-    end.to change { redis.keys("deployment-lock:*").size }.by(1)
-  end
-
-  it "unlocks for a deployment" do
-    deployment = Deployment.new
-    Lock.lock_deployment(deployment)
-    expect do
-      Lock.unlock_deployment(deployment)
-    end.to change { redis.keys("deployment-lock:*").size }.by(-1)
   end
 end
