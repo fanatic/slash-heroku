@@ -1,9 +1,6 @@
 # A incoming deployment requests that's valid and available to release.
 class DeploymentRequest
   attr_accessor :command_handler
-  def initialize(command_handler)
-    @command_handler = command_handler
-  end
 
   delegate :application, :branch, :environment, :forced, :hosts, :second_factor,
     to: :command_handler
@@ -17,6 +14,10 @@ class DeploymentRequest
   def self.process(command_handler)
     request = new(command_handler)
     request.process
+  end
+
+  def initialize(command_handler)
+    @command_handler = command_handler
   end
 
   def process
