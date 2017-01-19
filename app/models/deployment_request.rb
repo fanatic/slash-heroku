@@ -2,7 +2,7 @@
 class DeploymentRequest
   attr_accessor :command_handler
 
-  delegate :application, :branch, :environment, :forced, :hosts, :second_factor,
+  delegate :pipeline_name, :branch, :environment, :forced, :hosts, :second_factor,
     to: :command_handler
 
   delegate :command, to: :command_handler
