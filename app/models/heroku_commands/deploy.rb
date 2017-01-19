@@ -30,7 +30,6 @@ module HerokuCommands
       if application && !pipeline
         response_for("Unable to find a pipeline called #{application}")
       else
-        return lock_was_not_acquired_message unless acquire_lock
         DeploymentRequest.process(self)
       end
     end
@@ -60,19 +59,6 @@ module HerokuCommands
     def repository_markup(deploy)
       name_with_owner = deploy.github_repository
       "<https://github.com/#{name_with_owner}|#{name_with_owner}>"
-    end
-
-    def lock_was_not_acquired_message
-      msg = "Someone is already deploying to #{application}/#{environment}"
-      response_for(msg)
-    end
-
-    def release_lock
-      Lock.unlock_deployment(info)
-    end
-
-    def acquire_lock
-      Lock.lock_deployment(info)
     end
 
     def pipeline
