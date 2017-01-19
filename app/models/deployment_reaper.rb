@@ -1,7 +1,10 @@
 # Heroku deployment build reaper
 class DeploymentReaper
-  attr_reader :sha, :repo, :app_name, :build_id, :command_id, :deployment_url
+  attr_reader :args, :sha, :repo, :app_name,
+    :build_id, :command_id, :deployment_url
+
   def initialize(args = {})
+    @args           = args
     @sha            = args.fetch(:sha)
     @repo           = args.fetch(:repo)
     @app_name       = args.fetch(:app_name)
