@@ -39,7 +39,7 @@ class DeploymentRequest
   end
 
   def pipeline
-    @pipeline ||= command.pipelines[application]
+    @pipeline ||= command.pipeline
   end
 
   def heroku_application

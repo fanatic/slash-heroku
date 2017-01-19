@@ -14,14 +14,13 @@ class DeploymentReaperJob < ApplicationJob
 
     sha            = args.fetch(:sha)
     repo           = args.fetch(:repo)
-    name           = args.fetch(:name)
     app_name       = args.fetch(:app_name)
     build_id       = args.fetch(:build_id)
     command_id     = args.fetch(:command_id)
     deployment_url = args.fetch(:deployment_url)
 
     command  = Command.find(command_id)
-    pipeline = command.handler.pipelines[name]
+    pipeline = command.handler.pipeline
 
     build = pipeline.reap_build(app_name, build_id)
     if build

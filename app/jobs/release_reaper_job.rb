@@ -11,7 +11,6 @@ class ReleaseReaperJob < ApplicationJob
   def perform(*args_list)
     args = args_list.first
 
-    name           = args.fetch(:name)
     app_name       = args.fetch(:app_name)
     build_id       = args.fetch(:build_id)
     release_id     = args.fetch(:release_id)
@@ -19,7 +18,7 @@ class ReleaseReaperJob < ApplicationJob
     deployment_url = args.fetch(:deployment_url)
 
     command  = Command.find(command_id)
-    pipeline = command.handler.pipelines[name]
+    pipeline = command.handler.pipeline
 
     release = pipeline.reap_release(app_name, build_id, release_id)
     if release
