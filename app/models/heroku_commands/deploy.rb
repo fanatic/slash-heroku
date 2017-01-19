@@ -1,7 +1,6 @@
 module HerokuCommands
   # Class for handling Deployment requests
   class Deploy < HerokuCommand
-    include PipelineResponse
 
     attr_reader :info
     delegate :application, :branch, :forced, :hosts, :second_factor, to: :@info
@@ -28,7 +27,7 @@ module HerokuCommands
     end
 
     def deploy_application
-      if application && !pipelines[application]
+      if application && !pipeline
         response_for("Unable to find a pipeline called #{application}")
       else
         DeploymentRequest.process(self)
@@ -60,6 +59,17 @@ module HerokuCommands
     def repository_markup(deploy)
       name_with_owner = deploy.github_repository
       "<https://github.com/#{name_with_owner}|#{name_with_owner}>"
+    end
+
+    def pipeline_class
+      Pipeline.new(application, command.user.github_token, client.token)
+    end
+    def pipeline
+      pipeline_class.pipeline
+    end
+
+    def pipelines
+      pipeline_class.pipelines
     end
   end
 end
