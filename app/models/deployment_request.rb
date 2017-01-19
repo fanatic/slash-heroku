@@ -71,6 +71,8 @@ class DeploymentRequest
 
   # rubocop:disable Metrics/AbcSize
   def process
+    return lock_was_not_acquired_message unless acquire_lock
+
     heroku_application.preauth(second_factor) if second_factor
 
     heroku_build = heroku_build_request.create(
@@ -87,4 +89,17 @@ class DeploymentRequest
     command.error_response_for(e.message)
   end
   # rubocop:enable Metrics/AbcSize
+
+  def lock_was_not_acquired_message
+    msg = "Someone is already deploying to #{heroku_application.name}"
+    command.response_for(msg)
+  end
+
+  def release_lock
+    Lock.new(heroku_build_request.cache_key).unlock
+  end
+
+  def acquire_lock
+    Lock.new(heroku_build_request.cache_key).lock
+  end
 end
