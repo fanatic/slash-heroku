@@ -3,6 +3,10 @@ class DeploymentReaper
   attr_reader :args, :sha, :repo, :app_name,
     :build_id, :command_id, :deployment_url
 
+  def self.run(args)
+    new(args).reap
+  end
+
   def initialize(args = {})
     @args           = args
     @sha            = args.fetch(:sha)

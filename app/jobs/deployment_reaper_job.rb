@@ -3,7 +3,7 @@ class DeploymentReaperJob < ApplicationJob
   queue_as :default
 
   def perform(args = {})
-    DeploymentReaper.new(args).reap
+    DeploymentReaper.run(args)
   rescue StandardError => e
     Raven.capture_exception(e)
     Rails.logger.info e.inspect
