@@ -41,7 +41,7 @@ RSpec.describe ReleaseReaper, type: :model do
     response_info = fixture_data("kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository")
     stub_request(:get, "https://kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository")
       .to_return(status: 200, body: response_info)
-    
+
     response_info = fixture_data("api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/releases/#{args[:release_id]}")
     stub_request(:get, "https://api.heroku.com/apps/slash-h-production/releases/#{args[:release_id]}")
       .with(headers: default_heroku_headers(command.user.heroku_token))
