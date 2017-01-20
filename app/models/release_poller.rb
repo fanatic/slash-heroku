@@ -4,7 +4,6 @@ class ReleasePoller
     :release_id, :command_id, :deployment_url,
     :user_id, :pipeline_name
 
-
   def self.run(args)
     poller = new(args)
     poller.run
