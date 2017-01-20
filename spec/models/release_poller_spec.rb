@@ -28,16 +28,14 @@ RSpec.describe ReleasePoller, type: :model do
       name: "slash-heroku"
     }
 
-    command = user.create_command_for(command_params_for("deploy slash-heroku to prod"))
-
     response_info = fixture_data("api.heroku.com/pipelines/info")
     stub_request(:get, "https://api.heroku.com/pipelines")
-      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
 
     response_info = fixture_data("api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/builds/#{args[:build_id]}")
     stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{args[:build_id]}")
-      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
 
     response_info = fixture_data("kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository")
@@ -46,13 +44,13 @@ RSpec.describe ReleasePoller, type: :model do
 
     response_info = fixture_data("api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/releases/#{args[:release_id]}")
     stub_request(:get, "https://api.heroku.com/apps/slash-h-production/releases/#{args[:release_id]}")
-      .with(headers: default_heroku_headers(command.user.heroku_token))
+      .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
 
     stub_request(:post, "#{deployment_url}/statuses")
       .to_return(status: 200, body: {}.to_json, headers: {})
 
-    poller = ReleasePoller.run(args.merge(command_id: command.id))
+    poller = ReleasePoller.run(args)
     expect(poller.release.status).to eql("succeeded")
   end
   # rubocop:enable Metrics/LineLength
