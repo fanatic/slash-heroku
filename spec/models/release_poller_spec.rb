@@ -86,7 +86,7 @@ RSpec.describe ReleasePoller, type: :model do
       .to_return(status: 200, body: response_info, headers: {})
 
     status_update = stub_request(:post, "#{deployment_url}/statuses")
-      .to_return(status: 200, body: {}.to_json, headers: {})
+                    .to_return(status: 200, body: {}.to_json, headers: {})
 
     poller = nil
     ActiveJob::Base.queue_adapter = :test
