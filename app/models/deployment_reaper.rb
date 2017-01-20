@@ -86,8 +86,12 @@ class DeploymentReaper
     command.handler.pipeline
   end
 
+  def slug_id
+    build.info && build.info["slug"] && build.info["slug"]["id"]
+  end
+
   def artifact
-    { sha: sha, slug: build.info["slug"]["id"], repo: repo }
+    { sha: sha, slug: slug_id, repo: repo }
   end
 
   def build_url(app_name, build_id)
