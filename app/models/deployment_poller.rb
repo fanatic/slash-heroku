@@ -38,7 +38,7 @@ class DeploymentPoller
   end
 
   def build
-    @build ||= pipeline.reap_build(app_name, build_id)
+    @build ||= Escobar::Heroku::Build.new(user.pipelines, app_name, build_id)
   end
 
   private
