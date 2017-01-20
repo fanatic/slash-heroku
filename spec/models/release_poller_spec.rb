@@ -1,8 +1,6 @@
 require "rails_helper"
 
 RSpec.describe ReleasePoller, type: :model do
-  include Helpers::Api
-
   let(:user) do
     u = create_atmos
     u.heroku_token = SecureRandom.hex(24)

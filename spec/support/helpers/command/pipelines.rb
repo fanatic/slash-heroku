@@ -1,8 +1,6 @@
 module Helpers
   module Command
     module Pipelines
-      include Helpers::Api
-
       def stub_pipelines_command(heroku_token)
         response_info = fixture_data("api.heroku.com/account/info")
         stub_request(:get, "https://api.heroku.com/account")

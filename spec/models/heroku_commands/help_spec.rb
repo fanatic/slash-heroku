@@ -1,8 +1,6 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Help, type: :model do
-  include Helpers::Api
-
   it "has a default help command" do
     command = command_for("help")
     expect(command.task).to eql("help")

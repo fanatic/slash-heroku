@@ -1,8 +1,6 @@
 require "rails_helper"
 
 RSpec.describe DeploymentPoller, type: :model do
-  include Helpers::Api
-
   before do
     ActiveJob::Base.queue_adapter = :test
   end

@@ -1,7 +1,6 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Pipelines, type: :model do
-  include Helpers::Api
   include Helpers::Command::Pipelines
 
   def not_found_response
