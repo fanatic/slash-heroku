@@ -1,12 +1,12 @@
-# Heroku build release phase reaper
-class ReleaseReaper
+# Heroku build release phase poller
+class ReleasePoller
   attr_reader :args, :app_name, :build_id,
     :release_id, :command_id, :deployment_url
 
   def self.run(args)
-    reaper = new(args)
-    reaper.reap
-    reaper
+    poller = new(args)
+    poller.run
+    poller
   end
 
   def initialize(args = {})
@@ -18,11 +18,11 @@ class ReleaseReaper
     @deployment_url = args.fetch(:deployment_url)
   end
 
-  def reap
+  def run
     if release
       release_completed
     elsif release_phase_is_still_running?
-      ReleaseReaperJob.set(wait: 10.seconds).perform_later(args)
+      ReleasePollerJob.set(wait: 10.seconds).perform_later(args)
     else
       build_and_release_expired
     end
