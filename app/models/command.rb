@@ -28,6 +28,8 @@ class Command < ApplicationRecord
                    HerokuCommands::Auth.new(self)
                  when "deploy"
                    HerokuCommands::Deploy.new(self)
+                 when "login"
+                   HerokuCommands::Login.new(self)
                  when "pipeline", "pipelines"
                    HerokuCommands::Pipelines.new(self)
                  when "releases"
