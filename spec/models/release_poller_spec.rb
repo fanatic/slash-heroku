@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe ReleasePoller, type: :model do
-  include SlashHeroku::Support::Helpers::Api
+  include Helpers::Api
 
   let(:user) do
     u = create_atmos

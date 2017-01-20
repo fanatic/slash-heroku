@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe ChatDeploymentInfo, type: :model do
-  include SlashHeroku::Support::Helpers::Api
+  include Helpers::Api
 
   before do
   end

@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Help, type: :model do
-  include SlashHeroku::Support::Helpers::Api
+  include Helpers::Api
 
   it "has a default help command" do
     command = command_for("help")

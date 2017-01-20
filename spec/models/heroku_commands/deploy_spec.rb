@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Deploy, type: :model do
-  include SlashHeroku::Support::Helpers::Api
+  include Helpers::Api
 
   it "makes you sign up for GitHub OAuth" do
     command = command_for("deploy hubot")

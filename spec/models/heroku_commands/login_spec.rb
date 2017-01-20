@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Login, type: :model do
-  include SlashHeroku::Support::Helpers::Api
+  include Helpers::Api
   let(:command) { command_for("login") }
   let(:heroku_command) { HerokuCommands::Login.new(command) }
 

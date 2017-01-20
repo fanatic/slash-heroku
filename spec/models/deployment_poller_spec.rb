@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe DeploymentPoller, type: :model do
-  include SlashHeroku::Support::Helpers::Api
+  include Helpers::Api
 
   before do
     ActiveJob::Base.queue_adapter = :test
