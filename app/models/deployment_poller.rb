@@ -1,7 +1,8 @@
 # Heroku deployment build poller
 class DeploymentPoller
   attr_reader :args, :sha, :repo, :app_name,
-    :build_id, :command_id, :deployment_url
+    :build_id, :command_id, :deployment_url,
+    :user_id, :pipeline_name
 
   def self.run(args)
     poller = new(args)
@@ -17,6 +18,9 @@ class DeploymentPoller
     @build_id       = args.fetch(:build_id)
     @command_id     = args.fetch(:command_id)
     @deployment_url = args.fetch(:deployment_url)
+    # Escobar Build has the pipeline name as name in job_json
+    @pipeline_name  = args.fetch(:name)
+    @user_id        = args.fetch(:user_id)
   end
 
   def run
@@ -78,12 +82,12 @@ class DeploymentPoller
     pipeline.create_deployment_status(deployment_url, payload)
   end
 
-  def command
-    Command.find(command_id)
+  def user
+    @user ||= User.find(user_id)
   end
 
   def pipeline
-    command.handler.pipeline
+    @pipeline ||= user.pipeline_for(pipeline_name)
   end
 
   def slug_id

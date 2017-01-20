@@ -24,7 +24,9 @@ RSpec.describe DeploymentPoller, type: :model do
       repo: "heroku/slash-heroku",
       app_name: "slash-h-production",
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
-      deployment_url: deployment_url
+      deployment_url: deployment_url,
+      user_id: user.id,
+      pipeline_name: "slash-heroku"
     }
 
     command = user.create_command_for(command_params_for("deploy slash-heroku to prod"))
