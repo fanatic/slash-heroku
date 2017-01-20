@@ -1,7 +1,9 @@
 # Heroku build release phase poller
 class ReleasePoller
   attr_reader :args, :app_name, :build_id,
-    :release_id, :command_id, :deployment_url
+    :release_id, :command_id, :deployment_url,
+    :user_id, :pipeline_name
+
 
   def self.run(args)
     poller = new(args)
@@ -16,6 +18,8 @@ class ReleasePoller
     @release_id     = args.fetch(:release_id)
     @command_id     = args.fetch(:command_id)
     @deployment_url = args.fetch(:deployment_url)
+    @user_id        = args.fetch(:user_id)
+    @pipeline_name  = args.fetch(:name)
   end
 
   def run
@@ -63,8 +67,12 @@ class ReleasePoller
     @command ||= Command.find(command_id)
   end
 
+  def user
+    @user ||= User.find(user_id)
+  end
+
   def pipeline
-    command.handler.pipeline
+    @pipeline ||= user.pipeline_for(pipeline_name)
   end
 
   def build_url(app_name, build_id)

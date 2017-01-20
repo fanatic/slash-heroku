@@ -23,7 +23,9 @@ RSpec.describe ReleasePoller, type: :model do
       app_name: "slash-h-production",
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
       release_id: "23fe935d-88c8-4fd0-b035-10d44f3d9059",
-      deployment_url: deployment_url
+      deployment_url: deployment_url,
+      user_id: user.id,
+      name: "slash-heroku"
     }
 
     command = user.create_command_for(command_params_for("deploy slash-heroku to prod"))
