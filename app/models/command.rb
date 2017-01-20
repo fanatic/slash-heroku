@@ -25,19 +25,8 @@ class Command < ApplicationRecord
     end
   end
 
-  def notify_user_of_success!
-    user = User.find_by(slack_user_id: slack_user_id)
-    return unless user
-    name = "<@#{user.slack_user_id}|#{user.slack_user_name}>"
-    postback_message(text_response("#{name} you're all set. :tada:"))
-  end
-
   def default_response
     { response_type: "in_channel" }
-  end
-
-  def text_response(text)
-    { text: text, response_type: "in_channel" }
   end
 
   def auth_url_prefix
