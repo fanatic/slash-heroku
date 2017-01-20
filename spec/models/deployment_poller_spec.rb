@@ -41,22 +41,22 @@ RSpec.describe DeploymentPoller, type: :model do
   end
 
   def stub_build_with_id(build_id)
-    response_info = fixture_data("api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/builds/#{build_id}")
-    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}")
+    response_info = fixture_data("api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/builds/#{build_id}") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}") # rubocop:disable Metrics/LineLength
       .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
   end
 
   def stub_pending_build_with_id(build_id)
     response_info = fixture_data("api.heroku.com/builds/pending")
-    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}")
+    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}") # rubocop:disable Metrics/LineLength
       .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
   end
 
   def stub_kolkrabbi_repository
-    response_info = fixture_data("kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository")
-    stub_request(:get, "https://kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository")
+    response_info = fixture_data("kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://kolkrabbi.com/pipelines/4c18c922-6eee-451c-b7c6-c76278652ccc/repository") # rubocop:disable Metrics/LineLength
       .to_return(status: 200, body: response_info)
   end
 
@@ -65,9 +65,7 @@ RSpec.describe DeploymentPoller, type: :model do
       .to_return(status: 200, body: {}.to_json, headers: {})
   end
 
-  # rubocop:disable Metrics/LineLength
   it "successfully polls a build with a release" do
-
     stub_pipelines_info
     stub_build_with_id(build_args[:build_id])
     stub_kolkrabbi_repository
@@ -80,9 +78,7 @@ RSpec.describe DeploymentPoller, type: :model do
     expect(poller.build.status).to eql("succeeded")
     expect(poller.build).to be_releasing
   end
-  # rubocop:enable Metrics/LineLength
 
-  # rubocop:disable Metrics/LineLength
   it "re enqueue if build is still pending" do
     stub_pipelines_info
     stub_pending_build_with_id(build_args[:build_id])
@@ -93,5 +89,4 @@ RSpec.describe DeploymentPoller, type: :model do
     end.to have_enqueued_job(DeploymentPollerJob)
     expect(poller.build.status).to eql("pending")
   end
-  # rubocop:enable Metrics/LineLength
 end
