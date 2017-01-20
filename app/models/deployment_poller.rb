@@ -38,7 +38,7 @@ class DeploymentPoller
   end
 
   def build
-    @build ||= Escobar::Heroku::Build.new(user.pipelines, app_name, build_id)
+    @build ||= Escobar::Heroku::Build.new(escobar_client, app_name, build_id)
   end
 
   private
@@ -84,6 +84,10 @@ class DeploymentPoller
 
   def user
     @user ||= User.find(user_id)
+  end
+
+  def escobar_client
+    user.pipelines
   end
 
   def pipeline
