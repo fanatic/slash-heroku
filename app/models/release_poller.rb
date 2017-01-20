@@ -32,7 +32,8 @@ class ReleasePoller
   end
 
   def release
-    @release ||= pipeline.reap_release(app_name, build_id, release_id)
+    @release ||= Escobar::Heroku::Release.new(escobar_client, app_name,
+                                              build_id, release_id)
   end
 
   private
@@ -68,6 +69,10 @@ class ReleasePoller
 
   def user
     @user ||= User.find(user_id)
+  end
+
+  def escobar_client
+    user.pipelines
   end
 
   def pipeline
