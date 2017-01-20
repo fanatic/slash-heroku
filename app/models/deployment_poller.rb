@@ -43,7 +43,7 @@ class DeploymentPoller
     Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
     payload = {
       state: "pending",
-      target_url:  build_url(app_name, build_id),
+      target_url:  build.dashboard_build_output_url,
       description: "Build phase completed. Running release phase."
     }
     pipeline.create_deployment_status(deployment_url, payload)
@@ -56,7 +56,7 @@ class DeploymentPoller
     Rails.logger.info "Build Complete: #{artifact.to_json}."
     payload = {
       state: "failure",
-      target_url:  build_url(app_name, build_id),
+      target_url:  build.dashboard_build_output_url,
       description: "Build phase completed. slash-heroku"
     }
     payload[:state] = "success" if build.status == "succeeded"
@@ -82,9 +82,5 @@ class DeploymentPoller
 
   def artifact
     { sha: sha, slug: slug_id, repo: repo }
-  end
-
-  def build_url(app_name, build_id)
-    "https://dashboard.heroku.com/apps/#{app_name}/activity/builds/#{build_id}"
   end
 end
