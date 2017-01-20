@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe ReleaseReaper, type: :model do
+RSpec.describe ReleasePoller, type: :model do
   include SlashHeroku::Support::Helpers::Api
 
   let(:user) do
@@ -18,7 +18,7 @@ RSpec.describe ReleaseReaper, type: :model do
   end
 
   # rubocop:disable Metrics/LineLength
-  it "successfully reaps a release" do
+  it "successfully polls a release" do
     args = {
       app_name: "slash-h-production",
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
@@ -50,8 +50,8 @@ RSpec.describe ReleaseReaper, type: :model do
     stub_request(:post, "#{deployment_url}/statuses")
       .to_return(status: 200, body: {}.to_json, headers: {})
 
-    reaper = ReleaseReaper.run(args.merge(command_id: command.id))
-    expect(reaper.release.status).to eql("succeeded")
+    poller = ReleasePoller.run(args.merge(command_id: command.id))
+    expect(poller.release.status).to eql("succeeded")
   end
   # rubocop:enable Metrics/LineLength
 end

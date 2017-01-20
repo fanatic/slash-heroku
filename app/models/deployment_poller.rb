@@ -1,12 +1,12 @@
-# Heroku deployment build reaper
-class DeploymentReaper
+# Heroku deployment build poller
+class DeploymentPoller
   attr_reader :args, :sha, :repo, :app_name,
     :build_id, :command_id, :deployment_url
 
   def self.run(args)
-    reaper = new(args)
-    reaper.reap
-    reaper
+    poller = new(args)
+    poller.run
+    poller
   end
 
   def initialize(args = {})
@@ -19,15 +19,15 @@ class DeploymentReaper
     @deployment_url = args.fetch(:deployment_url)
   end
 
-  def reap
+  def run
     if build
       if build.releasing?
-        reap_release
+        poll_release
       else
         build_completed
       end
     elsif command_is_still_running?
-      DeploymentReaperJob.set(wait: 10.seconds).perform_later(args)
+      DeploymentPollerJob.set(wait: 10.seconds).perform_later(args)
     else
       build_expired
     end
@@ -53,7 +53,7 @@ class DeploymentReaper
     command.created_at > 15.minutes.ago
   end
 
-  def reap_release
+  def poll_release
     Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
     payload = {
       state: "pending",
@@ -61,7 +61,7 @@ class DeploymentReaper
       description: "Build phase completed. Running release phase."
     }
     pipeline.create_deployment_status(deployment_url, payload)
-    ReleaseReaperJob.perform_later(
+    ReleasePollerJob.perform_later(
       args.merge(release_id: build.release_id)
     )
   end
