@@ -32,20 +32,33 @@ module HerokuCommands
       }
     end
 
+    def authenticate_github_response
+      {
+        attachments: [
+          {
+            text: "You're not authenticated with GitHub yet. " \
+            "<#{command.github_auth_url}|Fix that>."
+          }
+        ]
+      }
+    end
+
+    def authenticate_heroku_response
+      {
+        attachments: [
+          {
+            text: "Please <#{command.slack_auth_url}|sign in to Heroku>."
+          }
+        ]
+      }
+    end
+
     def user_onboarding_response
       if user.heroku_configured?
-        {
-          attachments: [
-            { 
-              text: "You're not authenticated with GitHub yet. " \
-              "<#{command.github_auth_url}|Fix that>."
-            }
-          ]
-        }
+        authenticate_github_response
       else
-        command.authenticate_heroku_response
+        authenticate_heroku_response
       end
     end
   end
 end
-

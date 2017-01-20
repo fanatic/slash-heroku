@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe HerokuCommands::Auth, type: :model do
+RSpec.describe HerokuCommands::Login, type: :model do
   include SlashHeroku::Support::Helpers::Api
 
   before do
@@ -13,6 +13,10 @@ RSpec.describe HerokuCommands::Auth, type: :model do
 
   it "prints the user's email if properly onboarded" do
     command = heroku_handler_for("login")
+
+    command.user.heroku_token = SecureRandom.hex(32)
+    command.user.github_token = SecureRandom.hex(32)
+    command.user.save
 
     response_info = fixture_data("api.heroku.com/account/info")
     stub_request(:get, "https://api.heroku.com/account")
@@ -29,10 +33,27 @@ RSpec.describe HerokuCommands::Auth, type: :model do
     expect(attachment[:text]).to match("atmos@atmos.org")
   end
 
-  it "prompts the user to onboard if not authed" do
+  it "prompts the user to onboard with heroku if not configured" do
     command = heroku_handler_for("login")
 
     command.user.heroku_token = nil
+    command.user.github_token = nil
+    command.user.save
+
+    expect(command.task).to eql("login")
+    expect(command.subtask).to eql("default")
+    expect(command.application).to eql(nil)
+    expect { command.run }.to_not raise_error
+
+    expect(command.response[:attachments].size).to eql(1)
+    attachment = command.response[:attachments].first
+    expect(attachment[:text]).to match("sign in to Heroku")
+  end
+
+  it "prompts the user to onboard with github if not configured" do
+    command = heroku_handler_for("login")
+
+    command.user.heroku_token = SecureRandom.hex(32)
     command.user.github_token = nil
     command.user.save
 
