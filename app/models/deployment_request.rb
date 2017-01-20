@@ -87,10 +87,14 @@ class DeploymentRequest
     end
   end
 
+  def poller_arguments(heroku_build)
+    heroku_build.to_job_json.merge(user_id: user.id)
+  end
+
   def poll_heroku_build(heroku_build)
     DeploymentPollerJob
       .set(wait: 10.seconds)
-      .perform_later(heroku_build.to_job_json)
+      .perform_later(poller_arguments(heroku_build))
     {}
   end
 end
