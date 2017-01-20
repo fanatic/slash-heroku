@@ -24,16 +24,13 @@ class DeploymentPoller
   end
 
   def run
-    if build
-      if build.releasing?
-        poll_release
-      else
-        build_completed
-      end
-    elsif command_is_still_running?
+    return unless build
+    if build.status == "pending"
       DeploymentPollerJob.set(wait: 10.seconds).perform_later(args)
+    elsif build.releasing?
+      poll_release
     else
-      build_expired
+      build_completed
     end
   end
 
@@ -42,20 +39,6 @@ class DeploymentPoller
   end
 
   private
-
-  def build_expired
-    Rails.logger.info "Build expired for command: #{command.id}"
-    payload = {
-      state: "failure",
-      target_url:  build_url(app_name, build_id),
-      description: "Heroku build took longer than 15 minutes."
-    }
-    pipeline.create_deployment_status(deployment_url, payload)
-  end
-
-  def command_is_still_running?
-    command.created_at > 15.minutes.ago
-  end
 
   def poll_release
     Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
