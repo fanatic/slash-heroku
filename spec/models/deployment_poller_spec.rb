@@ -42,13 +42,20 @@ RSpec.describe DeploymentPoller, type: :model do
 
   def stub_build_with_id(build_id)
     response_info = fixture_data("api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/builds/#{build_id}") # rubocop:disable Metrics/LineLength
-    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}") # rubocop:disable Metrics/LineLength
-      .with(headers: default_heroku_headers(user.heroku_token))
-      .to_return(status: 200, body: response_info, headers: {})
+    stub_build_with_id_and_response(build_id, response_info)
   end
 
   def stub_pending_build_with_id(build_id)
     response_info = fixture_data("api.heroku.com/builds/pending")
+    stub_build_with_id_and_response(build_id, response_info)
+  end
+
+  def stub_completed_build_without_release_with_id(build_id)
+    response_info = fixture_data("api.heroku.com/builds/completed_without_release") # rubocop:disable Metrics/LineLength
+    stub_build_with_id_and_response(build_id, response_info)
+  end
+
+  def stub_build_with_id_and_response(build_id, response_info)
     stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}") # rubocop:disable Metrics/LineLength
       .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
@@ -88,5 +95,20 @@ RSpec.describe DeploymentPoller, type: :model do
       poller = DeploymentPoller.run(build_args)
     end.to have_enqueued_job(DeploymentPollerJob)
     expect(poller.build.status).to eql("pending")
+  end
+
+  it "updates status if build is complete without release" do
+    stub_pipelines_info
+    stub_completed_build_without_release_with_id(build_args[:build_id])
+    stub_kolkrabbi_repository
+    status_request = stub_status_creation(deployment_url)
+
+    poller = nil
+    expect do
+      poller = DeploymentPoller.run(build_args)
+    end.to_not have_enqueued_job(ReleasePollerJob)
+    expect(poller.build.status).to eql("succeeded")
+    expect(poller.build).to_not be_releasing
+    expect(status_request).to have_been_requested
   end
 end
