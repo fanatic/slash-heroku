@@ -9,13 +9,8 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
     }.to_json
   end
 
-  def heroku_handler_for(text)
-    command = command_for(text)
-    command.handler
-  end
-
   it "lists available pipelines" do
-    command = heroku_handler_for("pipelines")
+    command = command_for("pipelines")
     command.user.github_token = SecureRandom.hex(24)
     command.user.save
 
@@ -33,11 +28,13 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
     expect(command.subtask).to eql("default")
     expect(command.application).to be_nil
 
-    command.run
+    heroku_command = HerokuCommands::Pipelines.new(command)
 
-    expect(command.response[:response_type]).to be_nil
-    expect(command.response[:attachments].size).to eql(1)
-    attachment = command.response[:attachments].first
+    heroku_command.run
+
+    expect(heroku_command.response[:response_type]).to be_nil
+    expect(heroku_command.response[:attachments].size).to eql(1)
+    attachment = heroku_command.response[:attachments].first
     expect(attachment[:text]).to eql(
       "You can deploy: hubot, slash-heroku."
     )
@@ -45,7 +42,7 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
 
   # rubocop:disable Metrics/LineLength
   it "has a pipeline:info command" do
-    command = heroku_handler_for("pipelines:info -a hubot")
+    command = command_for("pipelines:info -a hubot")
     command.user.github_token = SecureRandom.hex(24)
     command.user.save
 
@@ -86,11 +83,13 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
     expect(command.subtask).to eql("info")
     expect(command.application).to eql("hubot")
 
-    command.run
+    heroku_command = HerokuCommands::Pipelines.new(command)
 
-    expect(command.response[:response_type]).to eql("in_channel")
-    expect(command.response[:attachments].size).to eql(1)
-    attachment = command.response[:attachments].first
+    heroku_command.run
+
+    expect(heroku_command.response[:response_type]).to eql("in_channel")
+    expect(heroku_command.response[:attachments].size).to eql(1)
+    attachment = heroku_command.response[:attachments].first
     expect(attachment[:fallback])
       .to eql("Heroku app hubot (atmos/hubot)")
     expect(attachment[:pretext]).to eql(nil)
@@ -136,7 +135,7 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
   end
 
   it "tells you to login to GitHub if pipeline:info can't auth" do
-    command = heroku_handler_for("pipelines:info -a hubot")
+    command = command_for("pipelines:info -a hubot")
     command.user.github_token = SecureRandom.hex(24)
     command.user.save
 
@@ -175,9 +174,11 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
     expect(command.subtask).to eql("info")
     expect(command.application).to eql("hubot")
 
-    command.run
+    heroku_command = HerokuCommands::Pipelines.new(command)
 
-    response = command.response
+    heroku_command.run
+
+    response = heroku_command.response
     expect(response[:response_type]).to eql("in_channel")
     expect(response[:text]).to include("You're not authenticated with GitHub.")
   end
