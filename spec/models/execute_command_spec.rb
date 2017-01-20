@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe ExecuteCommand, type: :model do
-  include SlashHeroku::Support::Helpers::Command::Pipelines
+  include Helpers::Command::Pipelines
 
   describe "Pipelines command" do
     it "lists available pipelines" do

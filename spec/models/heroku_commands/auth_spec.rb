@@ -1,8 +1,6 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Auth, type: :model do
-  include SlashHeroku::Support::Helpers::Api
-
   it "has a auth:logout command" do
     command = command_for("auth:logout")
 
