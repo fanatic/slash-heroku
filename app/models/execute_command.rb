@@ -12,7 +12,7 @@ class ExecuteCommand
 
   def run
     handler.run
-    postback_message(handler.response)
+    SlackPostback.for(handler.response, command.response_url)
   end
 
   def handler
@@ -30,25 +30,5 @@ class ExecuteCommand
                  else # when "help"
                    HerokuCommands::Help.new(command)
                  end
-  end
-
-  def postback_message(message)
-    response = client.post do |request|
-      request.url callback_uri.path
-      request.body = message.to_json
-      request.headers["Content-Type"] = "application/json"
-    end
-
-    Rails.logger.info action: "command#postback_message", body: response.body
-  rescue StandardError => e
-    Rails.logger.info "Unable to post back to slack: '#{e.inspect}'"
-  end
-
-  def callback_uri
-    @callback_uri ||= Addressable::URI.parse(command.response_url)
-  end
-
-  def client
-    @client ||= Faraday.new(url: "https://hooks.slack.com")
   end
 end
