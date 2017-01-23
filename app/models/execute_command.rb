@@ -17,12 +17,12 @@ class ExecuteCommand
 
   def handler
     @handler ||= case command.task
-                 when "auth"
-                   HerokuCommands::Auth.new(command)
                  when "deploy"
                    HerokuCommands::Deploy.new(command)
                  when "login"
                    HerokuCommands::Login.new(command)
+                 when "logout"
+                   HerokuCommands::Logout.new(command)
                  when "pipeline", "pipelines"
                    HerokuCommands::Pipelines.new(command)
                  when "releases"
