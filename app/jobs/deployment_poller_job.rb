@@ -1,9 +1,9 @@
-# Job to handle monitoring a heroku release
-class ReleaseReaperJob < ApplicationJob
+# Job to handle kicking off a Deployment request
+class DeploymentPollerJob < ApplicationJob
   queue_as :default
 
   def perform(args = {})
-    ReleaseReaper.run(args)
+    DeploymentPoller.run(args)
   rescue StandardError => e
     Raven.capture_exception(e)
     Rails.logger.info e.inspect
