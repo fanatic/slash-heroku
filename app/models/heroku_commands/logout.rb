@@ -7,7 +7,7 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "logout - Remove the user from the db."
+        "logout - Remove the user's auth information."
       ]
     end
 
