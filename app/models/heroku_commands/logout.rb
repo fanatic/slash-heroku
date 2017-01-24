@@ -7,7 +7,7 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "logout - Verify the user is authenticated with Heroku and GitHub."
+        "logout - Remove the user from the db."
       ]
     end
 
