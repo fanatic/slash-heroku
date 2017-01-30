@@ -28,8 +28,10 @@ class DeploymentRequest
     heroku_build = create_heroku_build
     poll_heroku_build(heroku_build)
   rescue Escobar::Heroku::BuildRequest::Error => e
+    unlock
     handle_escobar_exception(e)
   rescue StandardError => e
+    unlock
     Raven.capture_exception(e)
     command_handler.error_response_for(e.message)
   end
@@ -38,6 +40,10 @@ class DeploymentRequest
 
   def locked?
     Lock.new(heroku_application.cache_key).lock
+  end
+
+  def unlock
+    Lock.new(heroku_application.cache_key).unlock
   end
 
   def app_is_locked

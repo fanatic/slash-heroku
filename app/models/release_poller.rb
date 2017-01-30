@@ -26,6 +26,7 @@ class ReleasePoller
       ReleasePollerJob.set(wait: 10.seconds).perform_later(args)
     else
       release_completed
+      unlock
     end
   end
 
@@ -35,6 +36,10 @@ class ReleasePoller
   end
 
   private
+
+  def unlock
+    Lock.new(release.app.cache_key).unlock
+  end
 
   def release_completed
     payload = {

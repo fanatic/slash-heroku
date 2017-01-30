@@ -30,6 +30,7 @@ class DeploymentPoller
       poll_release
     else
       build_completed
+      unlock
     end
   end
 
@@ -38,6 +39,10 @@ class DeploymentPoller
   end
 
   private
+
+  def unlock
+    Lock.new(build.app.cache_key).unlock
+  end
 
   def poll_release
     Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
