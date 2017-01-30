@@ -41,7 +41,8 @@ class DeploymentRequest
   end
 
   def app_is_locked
-    command_handler.error_response_for("Someone is already deploying to #{heroku_application.name}")
+    msg = "Someone is already deploying to #{heroku_application.name}"
+    command_handler.error_response_for(msg)
   end
 
   def create_heroku_build
