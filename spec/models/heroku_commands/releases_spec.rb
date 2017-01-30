@@ -1,8 +1,6 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Releases, type: :model do
-  include SlashHeroku::Support::Helpers::Api
-
   before do
     Timecop.freeze(Time.zone.local(2016, 3, 13))
   end

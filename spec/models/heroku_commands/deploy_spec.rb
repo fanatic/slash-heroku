@@ -7,11 +7,6 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     Lock.clear_deploy_locks!
   end
 
-  def heroku_handler_for(text)
-    command = command_for(text)
-    command.handler
-  end
-
   it "makes you sign up for GitHub OAuth" do
     command = command_for("deploy hubot")
     message = "You're not authenticated with GitHub yet. " \

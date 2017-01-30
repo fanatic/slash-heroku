@@ -1,8 +1,6 @@
 require "rails_helper"
 
 RSpec.describe HerokuCommands::Help, type: :model do
-  include SlashHeroku::Support::Helpers::Api
-
   it "has a default help command" do
     command = command_for("help")
     expect(command.task).to eql("help")
@@ -19,7 +17,7 @@ RSpec.describe HerokuCommands::Help, type: :model do
       .to eql("Help commands from the heroku integration")
     expect(attachment[:pretext])
       .to eql("Run /h help releases for task specific help")
-    expect(attachment[:text].split("\n").size).to eql(6)
+    expect(attachment[:text].split("\n").size).to eql(7)
     expect(attachment[:title])
       .to eql("Available heroku help commands:")
     expect(attachment[:title_link])
