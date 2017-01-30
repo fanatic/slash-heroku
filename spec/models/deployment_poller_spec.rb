@@ -109,4 +109,41 @@ RSpec.describe DeploymentPoller, type: :model do
     expect(poller.build).to_not be_releasing
     expect(status_request).to have_been_requested
   end
+
+  it "unlocks the app if the build is complete with no release" do
+    stub_pipelines_info
+    stub_completed_build_without_release_with_id(build_args[:build_id])
+    stub_kolkrabbi_repository
+    stub_status_creation(deployment_url)
+
+    poller = DeploymentPoller.new(build_args)
+    lock = Lock.new(poller.build.app.cache_key)
+    lock.lock
+    poller.run
+    expect(lock).to_not be_locked
+  end
+
+  it "does not unlock if the build is pending" do
+    stub_pipelines_info
+    stub_pending_build_with_id(build_args[:build_id])
+
+    poller = DeploymentPoller.new(build_args)
+    lock = Lock.new(poller.build.app.cache_key)
+    lock.lock
+    poller.run
+    expect(lock).to be_locked
+  end
+
+  it "does not unlock if the build is a success with a release pending" do
+    stub_pipelines_info
+    stub_build_with_id(build_args[:build_id])
+    stub_kolkrabbi_repository
+    stub_status_creation(deployment_url)
+
+    poller = DeploymentPoller.new(build_args)
+    lock = Lock.new(poller.build.app.cache_key)
+    lock.lock
+    poller.run
+    expect(lock).to be_locked
+  end
 end
