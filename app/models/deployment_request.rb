@@ -22,6 +22,7 @@ class DeploymentRequest
   end
 
   def process
+    return app_is_locked unless locked?
     heroku_application.preauth(second_factor) if second_factor
 
     heroku_build = create_heroku_build
@@ -34,6 +35,14 @@ class DeploymentRequest
   end
 
   private
+
+  def locked?
+    Lock.new(heroku_application.cache_key).lock
+  end
+
+  def app_is_locked
+    command_handler.error_response_for("Someone is already deploying to #{heroku_application.name}")
+  end
 
   def create_heroku_build
     heroku_build = heroku_build_request.create(
