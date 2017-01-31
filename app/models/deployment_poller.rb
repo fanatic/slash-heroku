@@ -18,7 +18,7 @@ class DeploymentPoller
     @build_id       = args.fetch(:build_id)
     @deployment_url = args.fetch(:deployment_url)
     # Escobar Build has the pipeline name as name in job_json
-    @pipeline_name  = args.fetch(:name)
+    @pipeline_name  = args.fetch(:pipeline_name)
     @user_id        = args.fetch(:user_id)
   end
 
