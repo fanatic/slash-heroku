@@ -25,8 +25,8 @@ module HerokuCommands
         releases = app.releases_json
         deploys = github_client.deployments
 
-        response = ::Parse::Releases.new(releases, deploys).markdown
-        response_for_releases(response)
+        response = ::Parse::Releases.new(releases, deploys, github_repository)
+        response_for_releases(response.markdown)
       else
         help_for_task
       end

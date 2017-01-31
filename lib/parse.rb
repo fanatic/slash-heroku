@@ -44,9 +44,10 @@ module Parse
     include ActionView::Helpers::DateHelper
     attr_reader :release_info, :github_refs
 
-    def initialize(release_info, github_refs)
+    def initialize(release_info, github_refs, name_with_owner)
       @release_info = release_info
       @github_refs = github_refs
+      @name_with_owner = name_with_owner
     end
 
     def row_text
@@ -58,11 +59,7 @@ module Parse
 
     def optional_branch_link
       return unless ref
-      "<https://github.com/heroku/#{repo_name}/tree/#{ref}|#{ref}> - "
-    end
-
-    def repo_name
-      "reponame"
+      "<https://github.com/#{name_with_owner}/tree/#{ref}|#{ref}> - "
     end
 
     def version
