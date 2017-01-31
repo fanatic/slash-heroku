@@ -23,6 +23,28 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(heroku_command.response[:attachments]).to be_nil
   end
 
+  it "makes you sign up for Heroku OAuth" do
+    command = command_for("deploy hubot")
+    user = command.user
+    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
+    user.heroku_token = nil
+    user.save
+    message = "You're not authenticated with Heroku yet. " \
+                "<https://www.example.com/auth/slack([^|]+)|Fix that>."
+
+    expect(command.task).to eql("deploy")
+    expect(command.subtask).to eql("default")
+
+    heroku_command = HerokuCommands::Deploy.new(command)
+
+    heroku_command.run
+
+    expect(heroku_command.pipeline_name).to eql("hubot")
+    expect(heroku_command.response[:response_type]).to eql("in_channel")
+    expect(heroku_command.response[:text]).to match(Regexp.new(message))
+    expect(heroku_command.response[:attachments]).to be_nil
+  end
+
   # rubocop:disable Metrics/LineLength
   it "has a deploy command" do
     command = command_for("deploy hubot to production")
