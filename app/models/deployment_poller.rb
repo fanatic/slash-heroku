@@ -18,7 +18,7 @@ class DeploymentPoller
     @build_id       = args.fetch(:build_id)
     @deployment_url = args.fetch(:deployment_url)
     # Escobar Build has the pipeline name as name in job_json
-    @pipeline_name  = args.fetch(:name)
+    @pipeline_name  = args.fetch(:pipeline_name)
     @user_id        = args.fetch(:user_id)
   end
 
@@ -30,6 +30,7 @@ class DeploymentPoller
       poll_release
     else
       build_completed
+      unlock
     end
   end
 
@@ -38,6 +39,10 @@ class DeploymentPoller
   end
 
   private
+
+  def unlock
+    Lock.new(build.app.cache_key).unlock
+  end
 
   def poll_release
     Rails.logger.info "Build Complete: #{artifact.to_json}. Releasing..."
