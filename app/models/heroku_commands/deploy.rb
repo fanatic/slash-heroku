@@ -27,6 +27,8 @@ module HerokuCommands
     end
 
     def deploy_application
+      return authenticate_github_response unless user.github_configured?
+      return authenticate_heroku_response unless user.heroku_configured?
       if pipeline_name && !pipeline
         response_for("Unable to find a pipeline called #{pipeline_name}")
       else
@@ -41,8 +43,6 @@ module HerokuCommands
     def run_on_subtask
       case subtask
       when "default"
-        return authenticate_github_response unless user.github_configured?
-        return authenticate_heroku_response unless user.heroku_configured?
         deploy_application
       else
         response_for("deploy:#{subtask} is currently unimplemented.")
