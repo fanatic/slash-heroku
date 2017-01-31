@@ -2,6 +2,14 @@ require "rails_helper"
 require_relative "../../lib/parse.rb"
 
 RSpec.describe Parse::Releases do
+  before do
+    Timecop.freeze(Time.zone.local(2017, 1, 19))
+  end
+
+  after do
+    Timecop.return
+  end
+
   describe ".markdown" do
     it "returns a markdown of releases with heroku and github information" do
       releases =
@@ -11,7 +19,7 @@ RSpec.describe Parse::Releases do
           "api.github.com/repos/atmos/slash-heroku/deployments"
         )
 
-      releases_list = Parse::Releases.new(releases, deploys).markdown
+      releases_list = Parse::Releases.new(releases, deploys, "heroku/reponame").markdown
       expect(releases_list.split("\n").size).to eql(10)
 
       # rubocop:disable LineLength

@@ -1,16 +1,18 @@
 module Parse
   # Parses information about Heroku releases and GitHub deployment info
   class Releases
-    attr_reader :releases, :deploys
+    attr_reader :releases, :deploys, :github_repository
 
-    def initialize(releases, deploys)
+    def initialize(releases, deploys, github_repository)
       @releases = releases
       @deploys = deploys
+      @github_repository = github_repository
     end
 
     def markdown
       releases.map do |release|
-        Release.new(release, GitHubRefs.new(deploys)).row_text
+        refs = GitHubRefs.new(deploys)
+        Release.new(release, refs, github_repository).row_text
       end.join("\n")
     end
   end
@@ -42,7 +44,7 @@ module Parse
   # Returns information about a single release
   class Release
     include ActionView::Helpers::DateHelper
-    attr_reader :release_info, :github_refs
+    attr_reader :release_info, :github_refs, :name_with_owner
 
     def initialize(release_info, github_refs, name_with_owner)
       @release_info = release_info
