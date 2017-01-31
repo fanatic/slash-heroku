@@ -1,3 +1,5 @@
+require "parse"
+
 module HerokuCommands
   # Class for handling release info
   class Releases < HerokuCommand
@@ -17,8 +19,13 @@ module HerokuCommands
 
     def releases_info
       if application
-        app = Escobar::Heroku::App.new(client, application)
-        response = app.releases_json
+        app = Escobar::Heroku::App.new(client, application_for_releases)
+        github_client = Escobar::GitHub::Client.new(client.github_token, github_repository)
+
+        releases = app.releases_json
+        deploys = github_client.deployments
+
+        response = ::Parse::Releases.new(releases, deploys).markdown
         response_for_releases(response)
       else
         help_for_task
@@ -44,7 +51,7 @@ module HerokuCommands
     end
 
     def dashboard_link(application)
-      "https://dashboard.heroku.com/apps/#{application}"
+      "https://dashboard.heroku.com/pipelines/#{application}"
     end
 
     def response_for_releases(releases)
@@ -54,12 +61,36 @@ module HerokuCommands
         attachments: [
           {
             color: COLOR,
-            text: response_markdown_for(releases),
+            text: releases,
             title: "#{dashboard_markup(application)} - Recent releases",
-            fallback: "Latest releases for Heroku application #{application}"
+            fallback: "Latest releases for Heroku pipeline #{application}"
           }
         ]
       }
+    end
+
+    def default_environment
+      pipeline.default_environment
+    end
+
+    def application_for_releases
+      pipeline.environments[default_environment].first.app.id
+    end
+
+    def pipeline
+      user.pipeline_for(pipeline_name)
+    end
+
+    def available_pipelines
+      user.pipelines
+    end
+
+    def pipeline_name
+      application
+    end
+
+    def github_repository
+      pipeline.github_repository
     end
   end
 end
