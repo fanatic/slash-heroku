@@ -27,7 +27,7 @@ RSpec.describe DeploymentPoller, type: :model do
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
       deployment_url: deployment_url,
       user_id: user.id,
-      name: "slash-heroku"
+      pipeline_name: "slash-heroku"
     }
   end
 

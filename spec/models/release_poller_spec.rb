@@ -22,7 +22,7 @@ RSpec.describe ReleasePoller, type: :model do
       release_id: "23fe935d-88c8-4fd0-b035-10d44f3d9059",
       deployment_url: deployment_url,
       user_id: user.id,
-      name: "slash-heroku"
+      pipeline_name: "slash-heroku"
     }
   end
 
