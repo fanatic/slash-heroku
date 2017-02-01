@@ -81,7 +81,6 @@ module HerokuCommands
       command.command_text.match(pipelines_pattern)
     end
 
-
     def pipelines_pattern
       /
         pipelines(?::[^\s]+)
