@@ -22,29 +22,29 @@ class ExecuteCommand
     handler.response
   end
 
-  # rubocop:disable Metrics/AbcSize
-  # rubocop:disable Metrics/CyclomaticComplexity
   def handler
     @handler ||=
       if logging_in || needs_authentication
         HerokuCommands::Login.new(command)
       else
-        case task
-        when "deploy"
-          HerokuCommands::Deploy.new(command)
-        when "logout"
-          HerokuCommands::Logout.new(command)
-        when "pipeline", "pipelines"
-          HerokuCommands::Pipelines.new(command)
-        when "releases"
-          HerokuCommands::Releases.new(command)
-        else # when "help"
-          HerokuCommands::Help.new(command)
-        end
+        task_handler
       end
   end
-  # rubocop:enable Metrics/AbcSize
-  # rubocop:enable Metrics/CyclomaticComplexity
+
+  def task_handler
+    case task
+    when "deploy"
+      HerokuCommands::Deploy.new(command)
+    when "logout"
+      HerokuCommands::Logout.new(command)
+    when "pipeline", "pipelines"
+      HerokuCommands::Pipelines.new(command)
+    when "releases"
+      HerokuCommands::Releases.new(command)
+    else # when "help"
+      HerokuCommands::Help.new(command)
+    end
+  end
 
   def needs_authentication
     REQUIRES_AUTHENTICATION.include?(task) && not_setup?
