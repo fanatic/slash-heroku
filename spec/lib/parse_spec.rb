@@ -19,7 +19,8 @@ RSpec.describe Parse::Releases do
           "api.github.com/repos/atmos/slash-heroku/deployments"
         )
 
-      releases_list = Parse::Releases.new(releases, deploys, "heroku/reponame").markdown
+      releases = Parse::Releases.new(releases, deploys, "heroku/reponame")
+      releases_list = releases.markdown
       expect(releases_list.split("\n").size).to eql(10)
 
       # rubocop:disable LineLength

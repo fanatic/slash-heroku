@@ -17,10 +17,15 @@ module HerokuCommands
       @response = run_on_subtask
     end
 
+    def github_client
+      @github_client ||= Escobar::GitHub::Client.new(
+        client.github_token, github_repository
+      )
+    end
+
     def releases_info
       if application
         app = Escobar::Heroku::App.new(client, application_for_releases)
-        github_client = Escobar::GitHub::Client.new(client.github_token, github_repository)
 
         releases = app.releases_json
         deploys = github_client.deployments
@@ -69,9 +74,7 @@ module HerokuCommands
       }
     end
 
-    def default_environment
-      pipeline.default_environment
-    end
+    delegate :default_environment, :github_repository, to: :pipeline
 
     def application_for_releases
       pipeline.environments[default_environment].first.app.id
@@ -87,10 +90,6 @@ module HerokuCommands
 
     def pipeline_name
       application
-    end
-
-    def github_repository
-      pipeline.github_repository
     end
   end
 end
