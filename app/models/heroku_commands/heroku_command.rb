@@ -7,7 +7,7 @@ module HerokuCommands
     COLOR = "#6567a5".freeze
     UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
-    attr_reader :client, :command, :description, :response
+    attr_reader :client, :command, :description
     delegate :application, :subtask, :task, :user, to: :@command
 
     def initialize(command)
@@ -17,7 +17,6 @@ module HerokuCommands
       end
 
       @description = command.description.gsub("Running", "Ran")
-      @response    = { text: description, response_type: "in_channel" }
     end
 
     def run

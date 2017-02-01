@@ -22,10 +22,10 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
-    heroku_command.run
+    response = heroku_command.run
 
     expect(heroku_command.pipeline_name).to eql("hubot")
-    expect(heroku_command.response).to be_empty
+    expect(response).to be_empty
   end
 
   it "responds to you if required commit statuses aren't present" do
@@ -51,13 +51,13 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
-    heroku_command.run
+    response = heroku_command.run
 
     expect(heroku_command.pipeline_name).to eql("hubot")
-    expect(heroku_command.response[:response_type]).to eql("in_channel")
-    expect(heroku_command.response[:text]).to be_nil
-    expect(heroku_command.response[:attachments].size).to eql(1)
-    attachment = heroku_command.response[:attachments].first
+    expect(response[:response_type]).to eql("in_channel")
+    expect(response[:text]).to be_nil
+    expect(response[:attachments].size).to eql(1)
+    attachment = response[:attachments].first
     expect(attachment[:text]).to eql(
       "Unable to create GitHub deployments for atmos/hubot: " \
       "Conflict: Commit status checks failed for master."
@@ -86,15 +86,15 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
-    heroku_command.run
+    response = heroku_command.run
 
     expect(heroku_command.pipeline_name).to eql("hubot")
-    expect(heroku_command.response[:text]).to be_nil
-    expect(heroku_command.response[:response_type]).to be_nil
+    expect(response[:text]).to be_nil
+    expect(response[:response_type]).to be_nil
     attachments = [
       { text: "<https://dashboard.heroku.com/apps/hubot|Unlock hubot>" }
     ]
-    expect(heroku_command.response[:attachments]).to eql(attachments)
+    expect(response[:attachments]).to eql(attachments)
   end
 
   it "locks on second attempt" do
@@ -111,7 +111,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     # Fake the lock
     Lock.new("escobar-app-27bde4b5-b431-4117-9302-e533b887faaa").lock
 
-    heroku_command.run
+    response = heroku_command.run
 
     attachments = [
       {
@@ -119,6 +119,6 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
         color: "#f00"
       }
     ]
-    expect(heroku_command.response[:attachments]).to eql(attachments)
+    expect(response[:attachments]).to eql(attachments)
   end
 end
