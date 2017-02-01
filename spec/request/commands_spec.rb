@@ -25,7 +25,7 @@ RSpec.describe "SlashHeroku /commands", type: :request do
   end
 
   it "returns an oops message if the endpoint 500s" do
-    user = create_atmos
+    create_atmos
     allow(Command).to receive(:create).and_raise("Uninitialized Constant")
 
     post "/commands", params: default_params(text: "ps")
