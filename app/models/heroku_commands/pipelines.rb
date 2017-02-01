@@ -29,8 +29,7 @@ module HerokuCommands
           ]
         }
       else
-        response_for("You're not authenticated with GitHub yet. " \
-                     "<#{command.github_auth_url}|Fix that>.")
+        response_for("No pipelines to deploy")
       end
     end
 
