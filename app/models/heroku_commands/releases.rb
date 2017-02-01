@@ -41,7 +41,6 @@ module HerokuCommands
     def run_on_subtask
       releases_info
     rescue StandardError
-      debugger
       response_for("Unable to fetch recent releases for #{pipeline_name}.")
     end
 
