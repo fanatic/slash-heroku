@@ -5,6 +5,10 @@ RSpec.describe Lock do
     redis.del("test")
   end
 
+  after do
+    redis.del("test")
+  end
+
   it "locks" do
     lock = Lock.new("test")
     lock.lock
@@ -39,7 +43,7 @@ RSpec.describe Lock do
     lock.lock
     expect(lock).to be_locked
     redis.expire("test", 1)
-    sleep(1)
+    sleep(2)
     expect(lock).to_not be_locked
     expect(lock.lock).to be_truthy
   end
