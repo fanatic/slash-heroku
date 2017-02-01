@@ -51,18 +51,10 @@ class ExecuteCommand
   end
 
   def logging_in
-    command.task == "login"
+    task == "login"
   end
 
   def not_setup?
     !command.user.heroku_configured? || !command.user.github_configured?
-  end
-
-  def response_for(text)
-    {
-      attachments: [
-        { text: text, response_type: "in_channel" }
-      ]
-    }
   end
 end
