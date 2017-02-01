@@ -5,44 +5,6 @@ RSpec.describe ExecuteCommand, type: :model do
   include Helpers::Command::Deploy
   include Helpers::Command::Releases
 
-  describe "Pipelines command" do
-    let(:command) { command_for("pipelines") }
-
-    it "checks to make sure you're authenticated with heroku" do
-      command.user.heroku_token = nil
-      command.user.save
-
-      stub_please_sign_into_heroku
-      ExecuteCommand.for(command)
-      expect(stub_please_sign_into_heroku).to have_been_requested
-    end
-
-    it "checks to make sure you're authenticated with Github" do
-      command.user.github_token = nil
-      command.user.save
-
-      stub_please_sign_into_github
-      ExecuteCommand.for(command)
-      expect(stub_please_sign_into_github).to have_been_requested
-    end
-
-    it "lists available pipelines" do
-      command.user.github_token = SecureRandom.hex(24)
-      command.user.heroku_token = SecureRandom.hex(24)
-      command.user.save
-
-      stub_pipelines_command(command.user.heroku_token)
-
-      message = "You can deploy: hubot, slash-heroku."
-      slack_body = slack_body(message)
-      stub = stub_slack_request(slack_body)
-
-      ExecuteCommand.for(command)
-
-      expect(stub).to have_been_requested
-    end
-  end
-
   describe "Deploy command" do
     before do
       Lock.clear_deploy_locks!
@@ -89,7 +51,77 @@ RSpec.describe ExecuteCommand, type: :model do
     end
   end
 
-  describe "Releases" do
+  describe "Login command" do
+    let(:command) { command_for("login") }
+
+    it "logs you in if needed" do
+      command.user.heroku_token = nil
+      command.user.save
+
+      stub_please_sign_into_heroku
+      ExecuteCommand.for(command)
+      expect(stub_please_sign_into_heroku).to have_been_requested
+    end
+  end
+
+  describe "Logout command" do
+    let(:command) { command_for("logout") }
+
+    it "logs you out" do
+      response_info = fixture_data("api.heroku.com/account/info")
+      stub_request(:get, "https://api.heroku.com/account")
+        .with(headers: default_heroku_headers(command.user.heroku_token))
+        .to_return(status: 200, body: response_info, headers: {})
+
+      message = "Successfully removed your user. :wink:"
+      slack_body = slack_body(message)
+      stub = stub_slack_request(slack_body)
+
+      ExecuteCommand.for(command)
+
+      expect(stub).to have_been_requested
+    end
+  end
+
+  describe "Pipelines command" do
+    let(:command) { command_for("pipelines") }
+
+    it "checks to make sure you're authenticated with heroku" do
+      command.user.heroku_token = nil
+      command.user.save
+
+      stub_please_sign_into_heroku
+      ExecuteCommand.for(command)
+      expect(stub_please_sign_into_heroku).to have_been_requested
+    end
+
+    it "checks to make sure you're authenticated with Github" do
+      command.user.github_token = nil
+      command.user.save
+
+      stub_please_sign_into_github
+      ExecuteCommand.for(command)
+      expect(stub_please_sign_into_github).to have_been_requested
+    end
+
+    it "lists available pipelines" do
+      command.user.github_token = SecureRandom.hex(24)
+      command.user.heroku_token = SecureRandom.hex(24)
+      command.user.save
+
+      stub_pipelines_command(command.user.heroku_token)
+
+      message = "You can deploy: hubot, slash-heroku."
+      slack_body = slack_body(message)
+      stub = stub_slack_request(slack_body)
+
+      ExecuteCommand.for(command)
+
+      expect(stub).to have_been_requested
+    end
+  end
+
+  describe "Releases command" do
     let(:command) { command_for("releases slash-heroku in staging") }
 
     it "checks to make sure you're authenticated with heroku" do
