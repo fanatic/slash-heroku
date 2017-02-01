@@ -9,7 +9,7 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "releases -a PIPELINE - " \
+        "releases PIPELINE - " \
           "Display the last 25 releases for apps in the pipeline."
       ]
     end
@@ -25,7 +25,7 @@ module HerokuCommands
     end
 
     def releases_info
-      if application
+      if pipeline_name
         app = Escobar::Heroku::App.new(client, application_for_releases)
 
         releases = app.releases_json
@@ -69,19 +69,13 @@ module HerokuCommands
 
     delegate :default_environment, :github_repository, to: :pipeline
 
-    def parsed_environment
-      match = command.command_text.match(/in ([-_\.0-9a-z]+)/)
-      env = match[1] if match
-      case env
+    def environment
+      case releases_match[:environment]
       when "stg", "staging"
         "staging"
       else
         "production"
       end
-    end
-
-    def environment
-      parsed_environment
     end
 
     def application_for_releases
@@ -97,7 +91,25 @@ module HerokuCommands
     end
 
     def pipeline_name
-      application
+      releases_match[:pipeline_name]
+    end
+
+    def releases_match
+      command.command_text.match(releases_pattern) || {}
+    end
+
+    def releases_pattern
+      /
+        releases
+        \s+
+        (?<pipeline_name>[-_\.0-9a-z]+) # Pipeline name
+        (?:
+          \s+
+          in
+          \s+
+          (?<environment>[-_\.0-9a-z]+) # Optional environment
+        )?
+      /x
     end
   end
 end
