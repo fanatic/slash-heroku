@@ -2,7 +2,7 @@
 class ExecuteCommand
   attr_reader :command, :task
 
-  REQUIRES_AUTHENTICATION = %w{pipeline pipelines deploy}.freeze
+  REQUIRES_AUTHENTICATION = %w{pipeline pipelines deploy releases}.freeze
 
   def self.for(command)
     new(command).post_to_slack
@@ -22,6 +22,8 @@ class ExecuteCommand
     SlackPostback.for(response, command.response_url)
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/CyclomaticComplexity
   def handler
     @handler ||=
       if logging_in || needs_authentication
@@ -41,6 +43,8 @@ class ExecuteCommand
         end
       end
   end
+  # rubocop:enable Metrics/AbcSize
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def needs_authentication
     REQUIRES_AUTHENTICATION.include?(task) && not_setup?
