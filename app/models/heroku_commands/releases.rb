@@ -9,7 +9,8 @@ module HerokuCommands
 
     def self.help_documentation
       [
-        "releases -a APP - Display the last 10 releases for APP."
+        "releases -a PIPELINE - " \
+          "Display the last 25 releases for apps in the pipeline."
       ]
     end
 
@@ -43,14 +44,6 @@ module HerokuCommands
       response_for("Unable to fetch recent releases for #{application}.")
     end
 
-    def response_markdown_for(releases)
-      releases.map do |release|
-        "v#{release['version']} - #{release['description']} - " \
-        "#{release['user']['email']} - " \
-          "#{time_ago_in_words(release['created_at'])}"
-      end.join("\n")
-    end
-
     def dashboard_markup(application)
       "<#{dashboard_link(application)}|#{application}>"
     end
@@ -76,8 +69,25 @@ module HerokuCommands
 
     delegate :default_environment, :github_repository, to: :pipeline
 
+    def parsed_environment
+      match = command.command_text.match(/in ([-_\.0-9a-z]+)/)
+      env = match[1] if match
+      case env
+      when "prod", "prd"
+        "production"
+      when "stg"
+        "staging"
+      else
+        default_environment
+      end
+    end
+
+    def environment
+      parsed_environment
+    end
+
     def application_for_releases
-      pipeline.environments[default_environment].first.app.id
+      pipeline.environments[environment].first.app.id
     end
 
     def pipeline
