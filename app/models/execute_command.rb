@@ -13,13 +13,13 @@ class ExecuteCommand
     @task = command.task
   end
 
+  def post_to_slack
+    SlackPostback.for(response, command.response_url)
+  end
+
   def response
     handler.run
     handler.response
-  end
-
-  def post_to_slack
-    SlackPostback.for(response, command.response_url)
   end
 
   # rubocop:disable Metrics/AbcSize
