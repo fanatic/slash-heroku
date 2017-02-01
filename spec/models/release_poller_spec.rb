@@ -18,6 +18,7 @@ RSpec.describe ReleasePoller, type: :model do
   let(:release_args) do
     {
       app_name: "slash-h-production",
+      app_id: "b0deddbf-cf56-48e4-8c3a-3ea143be2333",
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
       release_id: "23fe935d-88c8-4fd0-b035-10d44f3d9059",
       deployment_url: deployment_url,
@@ -49,7 +50,7 @@ RSpec.describe ReleasePoller, type: :model do
   end
 
   def stub_build_with_id_and_response(build_id, response_info)
-    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/builds/#{build_id}") # rubocop:disable Metrics/LineLength
       .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
   end
@@ -76,7 +77,7 @@ RSpec.describe ReleasePoller, type: :model do
   end
 
   def stub_release_with_id_and_response(release_id, response_info)
-    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/releases/#{release_id}") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/releases/#{release_id}") # rubocop:disable Metrics/LineLength
       .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
   end
