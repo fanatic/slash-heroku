@@ -24,6 +24,7 @@ RSpec.describe DeploymentPoller, type: :model do
       sha: "abcdefg",
       repo: "heroku/slash-heroku",
       app_name: "slash-h-production",
+      app_id: "b0deddbf-cf56-48e4-8c3a-3ea143be2333",
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
       deployment_url: deployment_url,
       user_id: user.id,

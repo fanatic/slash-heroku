@@ -1,6 +1,6 @@
 # Heroku deployment build poller
 class DeploymentPoller
-  attr_reader :args, :sha, :repo, :app_name,
+  attr_reader :args, :sha, :repo, :app_name, :app_id,
     :build_id, :deployment_url,
     :user_id, :pipeline_name
 
@@ -15,6 +15,7 @@ class DeploymentPoller
     @sha            = args.fetch(:sha)
     @repo           = args.fetch(:repo)
     @app_name       = args.fetch(:app_name)
+    @app_id         = args.fetch(:app_id)
     @build_id       = args.fetch(:build_id)
     @deployment_url = args.fetch(:deployment_url)
     # Escobar Build has the pipeline name as name in job_json
@@ -35,7 +36,7 @@ class DeploymentPoller
   end
 
   def build
-    @build ||= Escobar::Heroku::Build.new(escobar_client, app_name, build_id)
+    @build ||= Escobar::Heroku::Build.new(escobar_client, app_id, build_id)
   end
 
   private

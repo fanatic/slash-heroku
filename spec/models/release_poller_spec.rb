@@ -18,6 +18,7 @@ RSpec.describe ReleasePoller, type: :model do
   let(:release_args) do
     {
       app_name: "slash-h-production",
+      app_id: "b0deddbf-cf56-48e4-8c3a-3ea143be2333",
       build_id: "b80207dc-139f-4546-aedc-985d9cfcafab",
       release_id: "23fe935d-88c8-4fd0-b035-10d44f3d9059",
       deployment_url: deployment_url,
