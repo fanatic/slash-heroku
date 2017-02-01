@@ -55,7 +55,7 @@ RSpec.describe DeploymentPoller, type: :model do
   end
 
   def stub_build_with_id_and_response(build_id, response_info)
-    stub_request(:get, "https://api.heroku.com/apps/slash-h-production/builds/#{build_id}") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://api.heroku.com/apps/b0deddbf-cf56-48e4-8c3a-3ea143be2333/builds/#{build_id}") # rubocop:disable Metrics/LineLength
       .with(headers: default_heroku_headers(user.heroku_token))
       .to_return(status: 200, body: response_info, headers: {})
   end
