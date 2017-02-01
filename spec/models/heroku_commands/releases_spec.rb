@@ -13,7 +13,7 @@ RSpec.describe HerokuCommands::Releases, type: :model do
 
   # rubocop:disable Metrics/LineLength
   it "has a releases -a command with default environment" do
-    command = command_for("releases -a slash-heroku")
+    command = command_for("releases -a slash-heroku in staging")
     command.user.github_token = SecureRandom.hex(24)
     command.user.save
 
@@ -50,8 +50,6 @@ RSpec.describe HerokuCommands::Releases, type: :model do
 
     heroku_command.run
 
-    expect { heroku_command.run }.to_not raise_error
-
     expect(heroku_command.environment).to eql("staging")
     expect(heroku_command.response[:response_type]).to eql("in_channel")
     expect(heroku_command.response[:attachments].size).to eql(1)
@@ -67,7 +65,7 @@ RSpec.describe HerokuCommands::Releases, type: :model do
   end
 
   it "has a releases -a command with specific environment" do
-    command = command_for("releases -a slash-heroku in prod")
+    command = command_for("releases -a slash-heroku")
     command.user.github_token = SecureRandom.hex(24)
     command.user.save
 
@@ -103,8 +101,6 @@ RSpec.describe HerokuCommands::Releases, type: :model do
     heroku_command = HerokuCommands::Releases.new(command)
 
     heroku_command.run
-
-    expect { heroku_command.run }.to_not raise_error
 
     expect(heroku_command.environment).to eql("production")
     expect(heroku_command.response[:response_type]).to eql("in_channel")

@@ -73,12 +73,10 @@ module HerokuCommands
       match = command.command_text.match(/in ([-_\.0-9a-z]+)/)
       env = match[1] if match
       case env
-      when "prod", "prd"
-        "production"
-      when "stg"
+      when "stg", "staging"
         "staging"
       else
-        default_environment
+        "production"
       end
     end
 
