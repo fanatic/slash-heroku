@@ -61,7 +61,7 @@ RSpec.describe HerokuCommands::Releases, type: :model do
     expect(attachment[:pretext]).to eql(nil)
     expect(attachment[:text].split("\n").size).to eql(10)
     expect(attachment[:title])
-      .to eql("<https://dashboard.heroku.com/pipelines/slash-heroku|slash-heroku> - Recent releases")
+      .to eql("<https://dashboard.heroku.com/pipelines/slash-heroku|slash-heroku> - Recent staging releases")
     expect(attachment[:title_link]).to eql(nil)
     expect(attachment[:fields]).to eql(nil)
   end
@@ -115,7 +115,7 @@ RSpec.describe HerokuCommands::Releases, type: :model do
     expect(attachment[:pretext]).to eql(nil)
     expect(attachment[:text].split("\n").size).to eql(10)
     expect(attachment[:title])
-      .to eql("<https://dashboard.heroku.com/pipelines/slash-heroku|slash-heroku> - Recent releases")
+      .to eql("<https://dashboard.heroku.com/pipelines/slash-heroku|slash-heroku> - Recent production releases")
     expect(attachment[:title_link]).to eql(nil)
     expect(attachment[:fields]).to eql(nil)
   end

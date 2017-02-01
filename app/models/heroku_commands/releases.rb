@@ -41,15 +41,16 @@ module HerokuCommands
     def run_on_subtask
       releases_info
     rescue StandardError
-      response_for("Unable to fetch recent releases for #{application}.")
+      debugger
+      response_for("Unable to fetch recent releases for #{pipeline_name}.")
     end
 
-    def dashboard_markup(application)
-      "<#{dashboard_link(application)}|#{application}>"
+    def dashboard_markup
+      "<#{dashboard_link}|#{pipeline_name}>"
     end
 
-    def dashboard_link(application)
-      "https://dashboard.heroku.com/pipelines/#{application}"
+    def dashboard_link
+      "https://dashboard.heroku.com/pipelines/#{pipeline_name}"
     end
 
     def response_for_releases(releases)
@@ -60,8 +61,8 @@ module HerokuCommands
           {
             color: COLOR,
             text: releases,
-            title: "#{dashboard_markup(application)} - Recent releases",
-            fallback: "Latest releases for Heroku pipeline #{application}"
+            title: "#{dashboard_markup} - Recent #{environment} releases",
+            fallback: "Latest releases for Heroku pipeline #{pipeline_name}"
           }
         ]
       }
