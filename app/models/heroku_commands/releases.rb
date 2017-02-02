@@ -25,7 +25,7 @@ module HerokuCommands
     end
 
     def client
-      Escobar::Client.new(user.github_token, user.heroku_token)
+      @client ||= Escobar::Client.new(user.github_token, user.heroku_token)
     end
 
     def releases_info
