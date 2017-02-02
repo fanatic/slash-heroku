@@ -124,6 +124,14 @@ RSpec.describe ExecuteCommand, type: :model do
   describe "Releases command" do
     let(:command) { command_for("releases slash-heroku in staging") }
 
+    before do
+      Timecop.freeze(Time.zone.local(2017, 2, 1, 18, 0, 0))
+    end
+
+    after do
+      Timecop.return
+    end
+
     it "checks to make sure you're authenticated with heroku" do
       command.user.heroku_token = nil
       command.user.save
