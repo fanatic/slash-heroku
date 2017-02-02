@@ -33,23 +33,31 @@ module HerokuCommands
       end
     end
 
+    def pipeline_information
+      if pipeline && pipeline.configured?
+        pipeline_info
+      elsif pipeline && !pipeline.configured?
+        {
+          attachments: [
+            { text: "<#{pipeline.heroku_permalink}|" \
+                    "Connect your pipeline to GitHub>" }
+          ]
+        }
+      else
+        {
+          attachments: [
+            { text: "Unable to find a pipeline called #{pipeline_name}" }
+          ]
+        }
+      end
+    end
+
     def run_on_subtask
       case subtask
       when "info"
-        if pipeline.configured?
-          pipeline_info
-        else
-          {
-            attachments: [
-              { text: "<#{pipeline.heroku_permalink}|" \
-                      "Connect your pipeline to GitHub>" }
-            ]
-          }
-        end
-      when "list", "default"
-        default_pipelines_for_user
+        pipeline_information
       else
-        response_for("pipeline:#{subtask} is currently unimplemented.")
+        default_pipelines_for_user
       end
     rescue Escobar::GitHub::RepoNotFound
       unable_to_access_repository_response
