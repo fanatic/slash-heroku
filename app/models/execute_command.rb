@@ -19,16 +19,14 @@ class ExecuteCommand
 
   def response
     handler.run
-    handler.response
   end
 
   def handler
-    @handler ||=
-      if logging_in || needs_authentication
-        HerokuCommands::Login.new(command)
-      else
-        task_handler
-      end
+    if logging_in || needs_authentication
+      HerokuCommands::Login.new(command)
+    else
+      task_handler
+    end
   end
 
   def task_handler
@@ -55,6 +53,6 @@ class ExecuteCommand
   end
 
   def not_setup?
-    !command.user.heroku_configured? || !command.user.github_configured?
+    !command.user.onboarded?
   end
 end

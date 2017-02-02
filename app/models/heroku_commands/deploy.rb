@@ -19,7 +19,7 @@ module HerokuCommands
     end
 
     def run
-      @response = run_on_subtask
+      run_on_subtask
     end
 
     def environment

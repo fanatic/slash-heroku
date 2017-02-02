@@ -13,7 +13,7 @@ module HerokuCommands
     end
 
     def run
-      @response = run_on_subtask
+      run_on_subtask
     rescue StandardError => e
       raise e if Rails.env.test?
       Raven.capture_exception(e)
