@@ -22,7 +22,7 @@ class DeploymentRequest
   end
 
   def process
-    return app_is_locked unless locked?
+    return app_is_locked unless lock_acquired?
     heroku_application.preauth(second_factor) if second_factor
 
     heroku_build = create_heroku_build
@@ -38,7 +38,7 @@ class DeploymentRequest
 
   private
 
-  def locked?
+  def lock_acquired?
     Lock.new(heroku_application.cache_key).lock
   end
 
