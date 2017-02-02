@@ -34,19 +34,13 @@ module HerokuCommands
     end
 
     def pipeline_information
-      if pipeline && pipeline.configured?
+      if pipeline.configured?
         pipeline_info
-      elsif pipeline && !pipeline.configured?
+      else
         {
           attachments: [
             { text: "<#{pipeline.heroku_permalink}|" \
                     "Connect your pipeline to GitHub>" }
-          ]
-        }
-      else
-        {
-          attachments: [
-            { text: "Unable to find a pipeline called #{pipeline_name}" }
           ]
         }
       end
@@ -55,7 +49,11 @@ module HerokuCommands
     def run_on_subtask
       case subtask
       when "info"
-        pipeline_information
+        if pipeline_name && !pipeline
+          response_for("Unable to find a pipeline called #{pipeline_name}")
+        else
+          pipeline_information
+        end
       else
         default_pipelines_for_user
       end
