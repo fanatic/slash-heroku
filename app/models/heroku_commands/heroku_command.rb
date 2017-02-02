@@ -7,13 +7,11 @@ module HerokuCommands
     COLOR = "#6567a5".freeze
     UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
 
-    attr_reader :client, :command
+    attr_reader :command
     delegate :application, :subtask, :task, :user, to: :@command
 
     def initialize(command)
       @command = command
-      return unless user
-      @client = Escobar::Client.new(user.github_token, user.heroku_token)
     end
 
     def run

@@ -24,6 +24,10 @@ module HerokuCommands
       )
     end
 
+    def client
+      Escobar::Client.new(user.github_token, user.heroku_token)
+    end
+
     def releases_info
       if pipeline_name
         app = Escobar::Heroku::App.new(client, application_for_releases)
