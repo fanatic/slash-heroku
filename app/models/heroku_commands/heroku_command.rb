@@ -12,9 +12,8 @@ module HerokuCommands
 
     def initialize(command)
       @command = command
-      if user
-        @client = Escobar::Client.new(user.github_token, user.heroku_token)
-      end
+      return unless user
+      @client = Escobar::Client.new(user.github_token, user.heroku_token)
     end
 
     def run
