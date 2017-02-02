@@ -39,7 +39,11 @@ module HerokuCommands
     end
 
     def run_on_subtask
-      releases_info
+      if pipeline_name && !pipeline
+        response_for("Unable to find a pipeline called #{pipeline_name}")
+      else
+        releases_info
+      end
     rescue StandardError
       response_for("Unable to fetch recent releases for #{pipeline_name}.")
     end
