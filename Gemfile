@@ -24,7 +24,6 @@ gem "omniauth-slack", "2.3.0"
 gem "pg"
 gem "puma"
 gem "railties", ">= 5.0.0.1", "< 5.1"
-gem "rails_stdout_logging", "0.0.4"
 gem "rbnacl-libsodium", require: "rbnacl/libsodium"
 gem "redis", "~> 3.0"
 gem "sentry-raven"
@@ -54,8 +53,4 @@ end
 group :development do
   gem "foreman"
   gem "spring"
-end
-
-group :staging, :production do
-  gem "rails_12factor"
 end
