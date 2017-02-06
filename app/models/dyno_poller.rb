@@ -24,7 +24,7 @@ class DynoPoller
 
   def run
     return unless app
-    if app.newer_than?(epoch)
+    if dynos.newer_than?(epoch)
       dyno_restart_completed
       unlock
     elsif expired?
@@ -33,6 +33,10 @@ class DynoPoller
     else
       requeue
     end
+  end
+
+  def dynos
+    @dynos ||= app.dynos
   end
 
   def app
