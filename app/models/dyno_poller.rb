@@ -63,7 +63,6 @@ class DynoPoller
       target_url:  build_url,
       description: "All dynos successfully restarted."
     }
-    payload[:state] = "success" if release.status == "succeeded"
 
     pipeline.create_deployment_status(deployment_url, payload)
   end
