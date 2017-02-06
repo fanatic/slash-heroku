@@ -1,7 +1,7 @@
-# Heroku release phase poller
+# Heroku dyno restart poller
 class ReleasePoller
   attr_reader :args, :app_name, :app_id, :build_id,
-    :release_id, :deployment_url,
+    :release_id, :deployment_url, :epoch,
     :user_id, :pipeline_name
 
   def self.run(args)
@@ -18,40 +18,60 @@ class ReleasePoller
     @release_id     = args.fetch(:release_id)
     @deployment_url = args.fetch(:deployment_url)
     @user_id        = args.fetch(:user_id)
+    @epoch          = Time.parse(args.fetch(:epoch)).utc
     @pipeline_name  = args.fetch(:pipeline_name)
   end
 
   def run
-    return unless release
-    if release.status == "pending"
-      ReleasePollerJob.set(wait: 10.seconds).perform_later(args)
+    return unless app
+    if app.newer_than?(epoch)
+      dyno_restart_completed
+      unlock
+    elsif expired?
+      dyno_restart_failed
+      unlock
     else
-      release_completed
-      DynoPollerJob.perform_later(args.merge(epoch: Time.now.utc.to_s(:db)))
+      requeue
     end
   end
 
-  def release
-    @release ||= Escobar::Heroku::Release.new(escobar_client, app_id,
-                                              build_id, release_id)
+  def app
+    @app ||= Escobar::Heroku::App.new(escobar_client, app_id)
   end
 
   private
 
-  def unlock
-    Lock.new(release.app.cache_key).unlock
+  def expired?
+    epoch > 30.minutes.ago
   end
 
-  def release_completed
+  def requeue
+    DynoPollerJob.set(wait: 10.seconds).perform_later(args)
+  end
+
+  def unlock
+    Lock.new(app.cache_key).unlock
+  end
+
+  def dyno_restart_completed
     payload = {
-      state: "failure",
-      target_url:  build_url(app_name, build_id),
-      description: "Release phase completed."
+      state: "success",
+      target_url:  build_url,
+      description: "All dynos successfully restarted."
     }
-    payload[:state] = "pending" if release.status == "succeeded"
+    payload[:state] = "success" if release.status == "succeeded"
 
     pipeline.create_deployment_status(deployment_url, payload)
-    unlock
+  end
+
+  def dyno_restart_failed
+    payload = {
+      state: "failure",
+      target_url:  build_url,
+      description: "All dynos didn't restart within 30 minutes of release."
+    }
+
+    pipeline.create_deployment_status(deployment_url, payload)
   end
 
   def user
@@ -66,7 +86,7 @@ class ReleasePoller
     @pipeline ||= user.pipeline_for(pipeline_name)
   end
 
-  def build_url(app_name, build_id)
+  def build_url
     "https://dashboard.heroku.com/apps/#{app_name}/activity/builds/#{build_id}"
   end
 end
