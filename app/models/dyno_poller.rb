@@ -1,5 +1,5 @@
 # Heroku dyno restart poller
-class ReleasePoller
+class DynoPoller
   attr_reader :args, :app_name, :app_id, :build_id,
     :release_id, :deployment_url, :epoch,
     :user_id, :pipeline_name
