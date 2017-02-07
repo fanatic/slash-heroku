@@ -92,9 +92,11 @@ class DeploymentRequest
   end
 
   def handle_escobar_exception(error)
-    CommandExecutorJob
-      .set(wait: 0.5.seconds)
-      .perform_later(command_id: command.id) unless command_expired?
+    unless command_expired?
+      CommandExecutorJob
+        .set(wait: 0.5.seconds)
+        .perform_later(command_id: command.id)
+    end
 
     if command.processed_at.nil?
       command_handler.error_response_for_escobar(error)
