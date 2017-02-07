@@ -24,6 +24,7 @@ class DynoPoller
 
   def run
     return unless app
+    Rails.logger.info at: "dyno_poller", epoch: epoch
     if dynos.newer_than?(epoch)
       dyno_restart_completed
       unlock
