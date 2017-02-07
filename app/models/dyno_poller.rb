@@ -43,11 +43,11 @@ class DynoPoller
     @app ||= Escobar::Heroku::App.new(escobar_client, app_id)
   end
 
-  private
-
   def expired?
-    epoch > 30.minutes.ago
+    30.minutes.ago.utc > epoch
   end
+
+  private
 
   def requeue
     DynoPollerJob.set(wait: 10.seconds).perform_later(args)

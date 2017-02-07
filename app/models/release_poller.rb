@@ -27,7 +27,7 @@ class ReleasePoller
       ReleasePollerJob.set(wait: 10.seconds).perform_later(args)
     else
       release_completed
-      DynoPollerJob.perform_later(args.merge(epoch: Time.now.utc.to_s(:db)))
+      DynoPollerJob.perform_later(args.merge(epoch: Time.now.utc.to_s))
     end
   end
 
