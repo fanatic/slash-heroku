@@ -48,6 +48,8 @@ class SessionsController < ApplicationController
   def create_slack
     user = User.from_omniauth(omniauth_info)
 
+    Rails.logger.info user: user.errors.full_messages.to_sentence
+
     session[:user_id] = user.id
     redirect_to after_successful_slack_user_setup_path
   end
