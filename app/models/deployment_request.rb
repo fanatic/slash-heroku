@@ -51,7 +51,9 @@ class DeploymentRequest
   end
 
   def pipeline_has_multiple_apps
-    msg = "There is more than one app in #{pipeline.name}, I cannot deploy it."
+    apps = app_names.join(", ")
+    msg = "There is more than one app in #{environment} for #{pipeline.name}: "
+    msg += "#{apps}. I cannot deploy it."
     command_handler.error_response_for(msg)
   end
 
@@ -87,8 +89,16 @@ class DeploymentRequest
     @pipeline ||= command_handler.pipeline
   end
 
+  def apps
+    @apps ||= pipeline.environments[environment]
+  end
+
   def pipeline_has_multiple_apps?
-    pipeline.environments[environment].count > 1
+    apps.count > 1
+  end
+
+  def app_names
+    apps.map(&:name)
   end
 
   def heroku_application

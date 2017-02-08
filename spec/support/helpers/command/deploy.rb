@@ -7,7 +7,8 @@ module Helpers
       ].freeze
       APP_IDS = [
         "27bde4b5-b431-4117-9302-e533b887faaa",
-        "b0deddbf-cf56-48e4-8c3a-3ea143be2333"
+        "b0deddbf-cf56-48e4-8c3a-3ea143be2333",
+        "c0deddbf-cf56-48e4-8c3a-3ea143be2333"
       ].freeze
 
       # rubocop:disable Metrics/LineLength
