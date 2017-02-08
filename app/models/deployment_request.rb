@@ -52,8 +52,8 @@ class DeploymentRequest
 
   def pipeline_has_multiple_apps
     apps = app_names.join(", ")
-    msg = "There is more than one app in #{environment} for #{pipeline.name}: "
-    msg += "#{apps}. I cannot deploy it."
+    msg = "There are more than one app in #{environment} for #{pipeline.name}: "
+    msg += "#{apps}. This is not supported yet."
     command_handler.error_response_for(msg)
   end
 
