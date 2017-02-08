@@ -61,7 +61,7 @@ class Command < ApplicationRecord
                        username: user.slack_user_name)
     Raven.extra_context(text:    command_text,
                         channel: channel_name,
-                        command_id: command.id)
+                        command_id: id)
   end
 
   private
