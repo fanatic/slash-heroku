@@ -14,7 +14,12 @@ class ExecuteCommand
   end
 
   def post_to_slack
+    add_sentry_context
     SlackPostback.for(response, command.response_url)
+  end
+
+  def add_sentry_context
+    command.add_sentry_context
   end
 
   def response
