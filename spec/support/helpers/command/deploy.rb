@@ -45,16 +45,22 @@ module Helpers
       end
 
       def stub_app_is_not_2fa(heroku_token)
-        stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa/config-vars")
-          .with(headers: default_heroku_headers(heroku_token))
-          .to_return(status: 200, body: {}.to_json, headers: {})
+        app_ids = ["27bde4b5-b431-4117-9302-e533b887faaa", "b0deddbf-cf56-48e4-8c3a-3ea143be2333"]
+        app_ids.each do |app_id|
+          stub_request(:get, "https://api.heroku.com/apps/#{app_id}/config-vars")
+            .with(headers: default_heroku_headers(heroku_token))
+            .to_return(status: 200, body: {}.to_json, headers: {})
+        end
       end
 
       def stub_app_info(heroku_token)
-        response_info = fixture_data("api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa")
-        stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa")
-          .with(headers: default_heroku_headers(heroku_token))
-          .to_return(status: 200, body: response_info, headers: {})
+        app_ids = ["27bde4b5-b431-4117-9302-e533b887faaa", "b0deddbf-cf56-48e4-8c3a-3ea143be2333"]
+        app_ids.each do |app_id|
+          response_info = fixture_data("api.heroku.com/apps/#{app_id}")
+          stub_request(:get, "https://api.heroku.com/apps/#{app_id}")
+            .with(headers: default_heroku_headers(heroku_token))
+            .to_return(status: 200, body: response_info, headers: {})
+        end
       end
 
       def stub_pipeline_info(heroku_token)
@@ -63,10 +69,15 @@ module Helpers
           .with(headers: default_heroku_headers(heroku_token))
           .to_return(status: 200, body: response_info, headers: {})
 
-        response_info = fixture_data("api.heroku.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/pipeline-couplings")
-        stub_request(:get, "https://api.heroku.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/pipeline-couplings")
-          .with(headers: default_heroku_headers(heroku_token))
-          .to_return(status: 200, body: response_info, headers: {})
+        pipeline_ids = ["531a6f90-bd76-4f5c-811f-acc8a9f4c111", "6c18c922-6eee-451c-b7c6-c76278652ccc"]
+        pipeline_ids .each do |p_id|
+          fixture_path = "api.heroku.com/pipelines/#{p_id}/pipeline-couplings"
+          url_to_stub = "https://api.heroku.com/pipelines/#{p_id}/pipeline-couplings"
+          response_info = fixture_data(fixture_path)
+          stub_request(:get, url_to_stub)
+            .with(headers: default_heroku_headers(heroku_token))
+            .to_return(status: 200, body: response_info, headers: {})
+        end
       end
 
       def stub_account_info(heroku_token)
