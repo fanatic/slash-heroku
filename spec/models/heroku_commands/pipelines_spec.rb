@@ -29,7 +29,7 @@ RSpec.describe HerokuCommands::Pipelines, type: :model do
     expect(response[:attachments].size).to eql(1)
     attachment = response[:attachments].first
     expect(attachment[:text]).to eql(
-      "You can deploy: hubot, slash-heroku."
+      "You can deploy: hubot, pipeline-with-multiple-apps, slash-heroku."
     )
   end
 

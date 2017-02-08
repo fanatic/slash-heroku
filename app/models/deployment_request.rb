@@ -23,17 +23,16 @@ class DeploymentRequest
 
   def process
     return app_is_locked unless lock_acquired?
-    heroku_application.preauth(second_factor) if second_factor
+    return pipeline_has_multiple_apps if pipeline_has_multiple_apps?
 
-    heroku_build = create_heroku_build
-    poll_heroku_build(heroku_build)
+    heroku_application.preauth(second_factor) if second_factor
+    poll_heroku_build(create_heroku_build)
   rescue Escobar::Heroku::BuildRequest::Error => e
     unlock
     handle_escobar_exception(e)
   rescue StandardError => e
     unlock
-    Raven.capture_exception(e)
-    command_handler.error_response_for(e.message)
+    handle_exception(e)
   end
 
   private
@@ -48,6 +47,11 @@ class DeploymentRequest
 
   def app_is_locked
     msg = "Someone is already deploying to #{heroku_application.name}"
+    command_handler.error_response_for(msg)
+  end
+
+  def pipeline_has_multiple_apps
+    msg = "There is more than one app in #{pipeline.name}, I cannot deploy it."
     command_handler.error_response_for(msg)
   end
 
@@ -83,6 +87,10 @@ class DeploymentRequest
     @pipeline ||= command_handler.pipeline
   end
 
+  def pipeline_has_multiple_apps?
+    pipeline.environments[environment].count > 1
+  end
+
   def heroku_application
     @heroku_application ||= default_heroku_application
   end
@@ -103,6 +111,11 @@ class DeploymentRequest
     else
       {}
     end
+  end
+
+  def handle_exception(e)
+    Raven.capture_exception(e)
+    command_handler.error_response_for(e.message)
   end
 
   def poller_arguments(heroku_build)
