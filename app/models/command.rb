@@ -55,6 +55,15 @@ class Command < ApplicationRecord
     Base64.encode64(data).split("\n").join("")
   end
 
+  def add_sentry_context
+    Raven.user_context(id:       user.id,
+                       slack_id: user.slack_user_id,
+                       username: user.slack_user_name)
+    Raven.extra_context(text:    command_text,
+                        channel: channel_name,
+                        command_id: id)
+  end
+
   private
 
   def extract_cli_args
