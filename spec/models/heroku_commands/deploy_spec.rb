@@ -144,7 +144,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     apps = "slash-heroku-production, slash-heroku-production-foo"
     attachments = [
       {
-        text: "There are more than one app in #{stage} for #{pipeline_name}: #{apps}. This is not supported yet.",
+        text: "There is more than one app in the #{pipeline_name} #{stage} stage: #{apps}. This is not supported yet.",
         color: "#f00"
       }
     ]

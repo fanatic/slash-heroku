@@ -51,9 +51,8 @@ class DeploymentRequest
   end
 
   def no_pipeline_application_provided_message
-    apps = app_names.join(", ")
-    "There are more than one app in #{environment} for #{pipeline.name}: " \
-      "#{apps}. This is not supported yet."
+    "There is more than one app in the #{pipeline.name} #{environment} stage:" \
+      " #{comma_delimited_app_names}. This is not supported yet."
   end
 
   def pipeline_has_multiple_apps
@@ -98,6 +97,10 @@ class DeploymentRequest
 
   def pipeline_has_multiple_apps?
     apps.count > 1
+  end
+
+  def comma_delimited_app_names
+    app_names.join(", ")
   end
 
   def app_names
