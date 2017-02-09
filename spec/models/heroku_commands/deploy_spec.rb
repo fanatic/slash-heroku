@@ -26,10 +26,11 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   def stub_couplings(pipeline_id, apps, stage = "production")
     apps = apps.is_a?(Array) ? apps : [apps]
     couplings = apps.map do |app|
-      { stage: stage, app: { id: app[:id] }}
+      { stage: stage, app: { id: app[:id] } }
     end
+    url = "https://api.heroku.com/pipelines/#{pipeline_id}/pipeline-couplings"
     stub_json_request(:get,
-                      "https://api.heroku.com/pipelines/#{pipeline_id}/pipeline-couplings",
+                      url,
                       couplings.to_json)
   end
 
@@ -49,9 +50,9 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   end
 
   def stub_mapping_pipeline_repository(pipeline_id, repo_name_with_owner)
-    stub_json_request(:get,
-                      "https://kolkrabbi.com/pipelines/#{pipeline_id}/repository",
-                      { repository: { name: repo_name_with_owner }}.to_json)
+    url = "https://kolkrabbi.com/pipelines/#{pipeline_id}/repository"
+    payload = { repository: { name: repo_name_with_owner } }
+    stub_json_request(:get, url, payload.to_json)
   end
 
   def stub_repository(name_with_owner, default_branch = "master")
@@ -61,9 +62,8 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   end
 
   def stub_required_contexts(name_with_owner, branch = "master")
-    stub_json_request(:get,
-                      "https://api.github.com/repos/#{name_with_owner}/branches/#{branch}",
-                      {}.to_json)
+    url = "https://api.github.com/repos/#{name_with_owner}/branches/#{branch}"
+    stub_json_request(:get, url, {}.to_json)
   end
 
   def stub_deployment_conflict(repo)
@@ -80,7 +80,6 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
                       {}.to_json,
                       200)
   end
-
 
   def stub_missing_required_commit_status_flow(pipeline_name, app_name, repo)
     pipeline =  { id: SecureRandom.uuid, name: pipeline_name }
@@ -128,26 +127,32 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     chosen_app_name = args[:chosen_app_name]
     repo            = args[:repo] || "atmos/hubot"
 
-    pipeline =  { id: SecureRandom.uuid, name: pipeline_name }
-    apps = app_names.map do |app_name|
-      { id: SecureRandom.uuid, name: app_name }
-    end
+    pipeline = { id: SecureRandom.uuid, name: pipeline_name }
+    apps = stubbed_apps_hash_from_names(app_names)
 
     stub_pipelines(pipeline)
     stub_couplings(pipeline[:id], apps)
-    apps.each do |app|
-      stub_heroku_app(app[:id], app[:name])
-    end
 
-    if chosen_app_name
-      chosen_app = apps.detect { |app| app[:name] == chosen_app_name }
-      stub_2fa_check(chosen_app[:id])
-      stub_mapping_pipeline_repository(pipeline[:id], repo)
+    return unless chosen_app_name
+    chosen_app = apps.detect { |app| app[:name] == chosen_app_name }
+    stub_chosen_app(chosen_app, repo)
+  end
 
-      stub_repository(repo)
-      stub_required_contexts(repo)
-      stub_deployment_status(repo)
+  def stubbed_apps_hash_from_names(app_names)
+    app_names.map do |app_name|
+      id = SecureRandom.uuid
+      stub_heroku_app(id, app_name)
+      { id: id, name: app_name }
     end
+  end
+
+  def stub_chosen_app(chosen_app, repo)
+    stub_2fa_check(chosen_app[:id])
+    stub_mapping_pipeline_repository(pipeline[:id], repo)
+
+    stub_repository(repo)
+    stub_required_contexts(repo)
+    stub_deployment_status(repo)
   end
 
   def stub_successful_deployment_flow(pipeline_name)
@@ -261,7 +266,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     stub_multiple_apps_in_stage_flow(
       pipeline_name: "hubot",
-      app_names: ["hubot1", "hubot2"]
+      app_names: %w{hubot1 hubot2}
     )
 
     expect(command.task).to eql("deploy")
@@ -286,7 +291,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     stub_multiple_apps_in_stage_flow(
       pipeline_name: "hubot",
-      app_names: ["hubot1", "hubot2"],
+      app_names: %w{hubot1 hubot2},
       chosen_app_name: "hubot1",
       repo: "atmos/hubot"
     )
