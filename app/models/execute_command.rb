@@ -37,7 +37,7 @@ class ExecuteCommand
       HerokuCommands::Deploy.new(command)
     when "logout"
       HerokuCommands::Logout.new(command)
-    when "pipeline", "pipelines"
+    when "pipelines"
       HerokuCommands::Pipelines.new(command)
     when "releases"
       HerokuCommands::Releases.new(command)
