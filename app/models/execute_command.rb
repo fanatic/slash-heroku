@@ -11,6 +11,8 @@ class ExecuteCommand
   def initialize(command)
     @command = command
     @task = command.task
+
+    command.add_sentry_context
   end
 
   def post_to_slack
