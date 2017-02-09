@@ -1,4 +1,5 @@
 require "webmock/rspec"
+require "coal_car/spec_helpers"
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
@@ -11,10 +12,14 @@ RSpec.configure do |config|
   end
 
   config.include(WebMock::API)
+  config.include(CoalCar::SpecHelpers)
+
+  config.before(:all) do
+    stub_zipkin!
+  end
 
   config.before(:each) do
     WebMock.reset!
     WebMock.disable_net_connect!
-    stub_request(:post, "https://zipkin-staging.heroku.tools/api/v1/spans")
   end
 end

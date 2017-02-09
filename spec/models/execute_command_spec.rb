@@ -111,7 +111,8 @@ RSpec.describe ExecuteCommand, type: :model do
 
       stub_pipelines_command(command.user.heroku_token)
 
-      message = "You can deploy: hubot, slash-heroku."
+      pipelines = %w{hubot pipeline-with-multiple-apps slash-heroku}.join(", ")
+      message = "You can deploy: #{pipelines}."
       slack_body = slack_body(message)
       stub = stub_slack_request(slack_body)
 

@@ -121,4 +121,65 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     ]
     expect(response[:attachments]).to eql(attachments)
   end
+
+  it "responds with an error message if the pipeline contains more than one app" do
+    command = command_for("deploy pipeline-with-multiple-apps to production")
+    user = command.user
+    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
+    user.save
+    command.user.reload
+
+    stub_deploy_command(command.user.heroku_token)
+
+    expect(command.task).to eql("deploy")
+    expect(command.subtask).to eql("default")
+
+    heroku_command = HerokuCommands::Deploy.new(command)
+
+    response = heroku_command.run
+
+    expect(heroku_command.pipeline_name).to eql("pipeline-with-multiple-apps")
+    pipeline_name = "pipeline-with-multiple-apps"
+    stage = "production"
+    apps = "slash-heroku-production, slash-heroku-production-foo"
+    attachments = [
+      {
+        text: "There is more than one app in the #{pipeline_name} #{stage} stage: #{apps}. This is not supported yet.",
+        color: "#f00"
+      }
+    ]
+    expect(response[:attachments]).to eql(attachments)
+  end
+
+  it "deploys an application if the pipeline has multiple apps and an app is specified" do
+    command = command_for("deploy pipeline-with-multiple-apps to production/slash-heroku-production-foo")
+    user = command.user
+    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
+    user.save
+    command.user.reload
+
+    stub_deploy_command(command.user.heroku_token)
+
+    expect(command.task).to eql("deploy")
+    expect(command.subtask).to eql("default")
+
+    heroku_command = HerokuCommands::Deploy.new(command)
+
+    pending "this should deploy slash-heroku-production-foo"
+
+    response = heroku_command.run
+
+    expect(heroku_command.pipeline_name).to eql("pipeline-with-multiple-apps")
+    pipeline_name = "pipeline-with-multiple-apps"
+    stage = "production"
+    apps = "slash-heroku-production, slash-heroku-production-foo"
+
+    attachments = [
+      {
+        text: "There is more than one app in the #{pipeline_name} #{stage} stage: #{apps}. This is not supported yet.",
+        color: "#f00"
+      }
+    ]
+    expect(response[:attachments]).to eql(attachments)
+  end
 end
