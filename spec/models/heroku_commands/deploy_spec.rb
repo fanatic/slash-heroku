@@ -165,12 +165,15 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
+    pending "this should deploy slash-heroku-production-foo"
+
     response = heroku_command.run
 
     expect(heroku_command.pipeline_name).to eql("pipeline-with-multiple-apps")
     pipeline_name = "pipeline-with-multiple-apps"
     stage = "production"
     apps = "slash-heroku-production, slash-heroku-production-foo"
+
     attachments = [
       {
         text: "There is more than one app in the #{pipeline_name} #{stage} stage: #{apps}. This is not supported yet.",

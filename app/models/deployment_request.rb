@@ -87,10 +87,14 @@ class DeploymentRequest
       pipeline.default_heroku_application(environment)
   end
 
+  def chat_application_name
+    @chat_application_name ||= command_handler.info.application
+  end
+
   def requested_heroku_application
-    return if command_handler.info.application.blank?
+    return if chat_application_name.blank?
     pipeline.environments[environment].find do |app|
-      return app.app if command_handler.info.application == app.app.name
+      return app.app if chat_application_name == app.app.name
     end
   end
 
