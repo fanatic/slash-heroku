@@ -22,8 +22,8 @@ class DeploymentRequest
   end
 
   def process
-    return app_is_locked unless lock_acquired?
     return pipeline_has_multiple_apps if pipeline_has_multiple_apps?
+    return app_is_locked unless lock_acquired?
 
     heroku_application.preauth(second_factor) if second_factor
     poll_heroku_build(create_heroku_build)
@@ -50,11 +50,14 @@ class DeploymentRequest
     command_handler.error_response_for(msg)
   end
 
-  def pipeline_has_multiple_apps
+  def no_pipeline_application_provided_message
     apps = app_names.join(", ")
-    msg = "There are more than one app in #{environment} for #{pipeline.name}: "
-    msg += "#{apps}. This is not supported yet."
-    command_handler.error_response_for(msg)
+    "There are more than one app in #{environment} for #{pipeline.name}: " \
+      "#{apps}. This is not supported yet."
+  end
+
+  def pipeline_has_multiple_apps
+    command_handler.error_response_for(no_pipeline_application_provided_message)
   end
 
   def create_heroku_build
