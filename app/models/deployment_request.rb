@@ -22,7 +22,7 @@ class DeploymentRequest
   end
 
   def process
-    return pipeline_has_multiple_apps if pipeline_has_multiple_apps?
+    return pipeline_needs_application_name if pipeline_needs_application_name?
     return app_is_locked unless lock_acquired?
 
     heroku_application.preauth(second_factor) if second_factor
@@ -55,7 +55,7 @@ class DeploymentRequest
       " #{comma_delimited_app_names}. This is not supported yet."
   end
 
-  def pipeline_has_multiple_apps
+  def pipeline_needs_application_name
     command_handler.error_response_for(no_pipeline_application_provided_message)
   end
 
@@ -87,12 +87,23 @@ class DeploymentRequest
       pipeline.default_heroku_application(environment)
   end
 
+  def requested_heroku_application
+    return if command_handler.info.application.blank?
+    pipeline.environments[environment].find do |app|
+      return app.app if command_handler.info.application == app.app.name
+    end
+  end
+
   def pipeline
     @pipeline ||= command_handler.pipeline
   end
 
   def apps
     @apps ||= pipeline.environments[environment]
+  end
+
+  def pipeline_needs_application_name?
+    pipeline_has_multiple_apps? && requested_heroku_application.nil?
   end
 
   def pipeline_has_multiple_apps?
@@ -108,7 +119,8 @@ class DeploymentRequest
   end
 
   def heroku_application
-    @heroku_application ||= default_heroku_application
+    @heroku_application ||=
+      requested_heroku_application || default_heroku_application
   end
 
   def heroku_build_request
