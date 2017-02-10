@@ -17,48 +17,75 @@ module HerokuCommands
     end
 
     def run
+      user_response
+    end
+
+    private
+
+    def user_response
+      {
+        text: response_main_text,
+        attachments: [
+          {
+            color: response_color,
+            mrkdwn_in: %w{text pretext fields},
+            attachment_type: "default",
+            fields: [heroku_response, github_response]
+          }
+        ]
+      }
+    end
+
+    def response_main_text
       if user.onboarded?
-        authenticated_user_response
+        "Your account is fully setup"
+      elsif user.onboarding?
+        "You are half the way done"
       else
-        user_onboarding_response
+        "Let's setup this account"
       end
     end
 
-    def authenticated_user_response
-      {
-        attachments: [
-          { text: "You're authenticated as #{email} on Heroku." }
-        ]
-      }
-    end
-
-    def authenticate_github_response
-      {
-        attachments: [
-          {
-            text: "You're not authenticated with GitHub yet. " \
-            "<#{command.github_auth_url}|Fix that>."
-          }
-        ]
-      }
-    end
-
-    def authenticate_heroku_response
-      {
-        attachments: [
-          {
-            text: "Please <#{command.slack_auth_url}|sign in to Heroku>."
-          }
-        ]
-      }
-    end
-
-    def user_onboarding_response
-      if user.heroku_configured?
-        authenticate_github_response
+    def response_color
+      if user.onboarded?
+        "#46ea1f"
+      elsif user.onboarding?
+        "#ffa807"
       else
-        authenticate_heroku_response
+        "#f00a1f"
       end
+    end
+
+    def heroku_response
+      text = if user.heroku_configured?
+               "You're authenticated as #{user.heroku_email} on Heroku."
+             else
+               "Please <#{command.slack_auth_url}|sign in to Heroku>."
+             end
+
+      {
+        title: "Heroku",
+        value: text,
+        short: true
+      }
+    end
+
+    def github_response
+      text = if user.github_configured?
+               "You're authenticated as #{github_link_for_slack} on GitHub."
+             else
+               "Please <#{command.github_auth_url}|sign in to GitHub>."
+             end
+
+      {
+        title: "GitHub",
+        value: text,
+        short: true
+      }
+    end
+
+    def github_link_for_slack
+      "<https://github.com/#{user.github_login}|#{user.github_login}>"
     end
   end
 end
