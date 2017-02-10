@@ -7,14 +7,18 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     Lock.clear_deploy_locks!
   end
 
-  # rubocop:disable Metrics/LineLength
-  it "has a deploy command" do
-    command = command_for("deploy hubot to production")
+  def build_command(cmd)
+    command = command_for(cmd)
     user = command.user
     user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
     user.save
     command.user.reload
+    command
+  end
 
+  # rubocop:disable Metrics/LineLength
+  it "has a deploy command" do
+    command = build_command("deploy hubot to production")
     stub_deploy_command(command.user.heroku_token)
 
     expect(command.task).to eql("deploy")
@@ -29,20 +33,13 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   end
 
   it "responds to you if required commit statuses aren't present" do
-    command = command_for("deploy hubot to production")
-    user = command.user
-    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
-    user.save
-    command.user.reload
-
+    command = build_command("deploy hubot to production")
     heroku_token = command.user.heroku_token
-
     stub_account_info(heroku_token)
     stub_pipeline_info(heroku_token)
     stub_app_info(heroku_token)
     stub_app_is_not_2fa(heroku_token)
     stub_build(heroku_token)
-
     stub_request(:post, "https://api.github.com/repos/atmos/hubot/deployments")
       .to_return(status: 409, body: { message: "Conflict: Commit status checks failed for master." }.to_json, headers: {})
 
@@ -65,18 +62,11 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   end
 
   it "prompts to unlock in the dashboard if the app is 2fa protected" do
-    command = command_for("deploy hubot to production")
-    user = command.user
-    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
-    user.save
-    command.user.reload
-
+    command = build_command("deploy hubot to production")
     heroku_token = command.user.heroku_token
-
     stub_account_info(heroku_token)
     stub_pipeline_info(heroku_token)
     stub_app_info(heroku_token)
-
     stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa/config-vars")
       .with(headers: default_heroku_headers(command.user.heroku_token))
       .to_return(status: 403, body: { id: "two_factor" }.to_json, headers: {})
@@ -123,12 +113,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   end
 
   it "responds with an error message if the pipeline contains more than one app" do
-    command = command_for("deploy pipeline-with-multiple-apps to production")
-    user = command.user
-    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
-    user.save
-    command.user.reload
-
+    command = build_command("deploy pipeline-with-multiple-apps to production")
     stub_deploy_command(command.user.heroku_token)
 
     expect(command.task).to eql("deploy")
@@ -141,7 +126,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(heroku_command.pipeline_name).to eql("pipeline-with-multiple-apps")
     pipeline_name = "pipeline-with-multiple-apps"
     stage = "production"
-    apps = "slash-heroku-production, slash-heroku-production-foo"
+    apps = "beeper-production, beeper-production-foo"
     attachments = [
       {
         text: "There is more than one app in the #{pipeline_name} #{stage} stage: #{apps}. This is not supported yet.",
@@ -152,12 +137,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   end
 
   it "deploys an application if the pipeline has multiple apps and an app is specified" do
-    command = command_for("deploy pipeline-with-multiple-apps to production/slash-heroku-production-foo")
-    user = command.user
-    user.github_token = Digest::SHA1.hexdigest(Time.now.utc.to_f.to_s)
-    user.save
-    command.user.reload
-
+    command = build_command("deploy pipeline-with-multiple-apps to production/beeper-production-foo")
     stub_deploy_command(command.user.heroku_token)
 
     expect(command.task).to eql("deploy")
@@ -165,21 +145,9 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
-    pending "this should deploy slash-heroku-production-foo"
-
     response = heroku_command.run
 
     expect(heroku_command.pipeline_name).to eql("pipeline-with-multiple-apps")
-    pipeline_name = "pipeline-with-multiple-apps"
-    stage = "production"
-    apps = "slash-heroku-production, slash-heroku-production-foo"
-
-    attachments = [
-      {
-        text: "There is more than one app in the #{pipeline_name} #{stage} stage: #{apps}. This is not supported yet.",
-        color: "#f00"
-      }
-    ]
-    expect(response[:attachments]).to eql(attachments)
+    expect(response).to be_empty
   end
 end
