@@ -22,8 +22,7 @@ Rails.application.routes.draw do
   post "/message_actions"  => "message_actions#create"
   post "/signout"  => "sessions#destroy"
 
-  # mount Sidekiq::Web => "/sidekiq", constraints: AdminConstraint.new
-  mount Sidekiq::Web => "/sidekiq"
+  mount Sidekiq::Web => "/sidekiq", constraints: AdminConstraint.new
 
   root to: "pages#install"
 end
