@@ -24,13 +24,13 @@ module HerokuCommands
 
     def user_response
       {
-        "text": response_main_text,
-        "attachments": [
+        text: response_main_text,
+        attachments: [
           {
-            "color": response_color,
-            "mrkdwn_in": %w{text pretext fields},
-            "attachment_type": "default",
-            "fields": [heroku_response, github_response]
+            color: response_color,
+            mrkdwn_in: %w{text pretext fields},
+            attachment_type: "default",
+            fields: [heroku_response, github_response]
           }
         ]
       }
@@ -64,9 +64,9 @@ module HerokuCommands
              end
 
       {
-        "title": "Heroku",
-        "value": text,
-        "short": true
+        title: "Heroku",
+        value: text,
+        short: true
       }
     end
 
@@ -78,9 +78,9 @@ module HerokuCommands
              end
 
       {
-        "title": "GitHub",
-        "value": text,
-        "short": true
+        title: "GitHub",
+        value: text,
+        short: true
       }
     end
   end
