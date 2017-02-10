@@ -25,20 +25,13 @@ class Command < ApplicationRecord
     "https://#{ENV['HOSTNAME']}/auth"
   end
 
-  def slack_auth_url
+  def heroku_auth_url
     "#{auth_url_prefix}/slack?origin=#{encoded_origin_hash(:heroku)}" \
       "&team=#{team_id}"
   end
 
   def github_auth_url
     "#{auth_url_prefix}/github?origin=#{encoded_origin_hash(:github)}"
-  end
-
-  def authenticate_heroku_response
-    {
-      response_type: "in_channel",
-      text: "Please <#{slack_auth_url}|sign in to Heroku>."
-    }
   end
 
   def origin_hash(provider_name)

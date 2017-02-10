@@ -217,6 +217,7 @@ RSpec.describe ExecuteCommand, type: :model do
 
   def authenticate_heroku_response(command)
     {
+      response_type: "in_channel",
       text: "Let's setup this account",
       attachments: [{
         color: "#f00a1f",
@@ -225,7 +226,7 @@ RSpec.describe ExecuteCommand, type: :model do
         fields: [
           {
             title: "Heroku",
-            value: "Please <#{command.slack_auth_url}|sign in to Heroku>.",
+            value: "Please <#{command.heroku_auth_url}|sign in to Heroku>.",
             short: true
           },
           {
@@ -240,6 +241,7 @@ RSpec.describe ExecuteCommand, type: :model do
 
   def authenticate_github_response(command)
     {
+      response_type: "in_channel",
       text: "You are half the way done",
       attachments: [{
         color: "#ffa807",

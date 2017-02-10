@@ -18,10 +18,14 @@ RSpec.describe "SlashHeroku /commands", type: :request do
     response_body = JSON.parse(body)
     expect(response_body["response_type"]).to eql("in_channel")
 
+    text = "Let's setup this account"
     link = "Please <https://www.example.com/auth/slack?origin=" \
            "#{Command.last.encoded_origin_hash}&team=T123YG08V|" \
            "sign in to Heroku>."
-    expect(response_body["text"]).to eql(link)
+    attachment = response_body["attachments"].first
+    attach_text = attachment["fields"].first["value"]
+    expect(response_body["text"]).to eql(text)
+    expect(attach_text).to eql(link)
   end
 
   it "returns an oops message if the endpoint 500s" do
