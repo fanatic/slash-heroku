@@ -5,6 +5,8 @@ RSpec.describe ExecuteCommand, type: :model do
   include Helpers::Command::Deploy
   include Helpers::Command::Releases
 
+  let(:email) { "buddy@example.com" }
+
   describe "Deploy command" do
     before do
       Lock.clear_deploy_locks!
@@ -23,6 +25,7 @@ RSpec.describe ExecuteCommand, type: :model do
 
     it "checks to make sure you're authenticated with Github" do
       command.user.github_token = nil
+      command.user.heroku_email = email
       command.user.save
 
       stub_please_sign_into_github
@@ -97,6 +100,7 @@ RSpec.describe ExecuteCommand, type: :model do
 
     it "checks to make sure you're authenticated with Github" do
       command.user.github_token = nil
+      command.user.heroku_email = email
       command.user.save
 
       stub_please_sign_into_github
@@ -144,6 +148,7 @@ RSpec.describe ExecuteCommand, type: :model do
 
     it "checks to make sure you're authenticated with Github" do
       command.user.github_token = nil
+      command.user.heroku_email = email
       command.user.save
 
       stub_please_sign_into_github
@@ -210,16 +215,59 @@ RSpec.describe ExecuteCommand, type: :model do
     }.to_json
   end
 
+  def authenticate_heroku_response(command)
+    {
+      text: "Let's setup this account",
+      attachments: [{
+        color: "#f00a1f",
+        mrkdwn_in: %w{text pretext fields},
+        attachment_type: "default",
+        fields: [
+          {
+            title: "Heroku",
+            value: "Please <#{command.slack_auth_url}|sign in to Heroku>.",
+            short: true
+          },
+          {
+            title: "GitHub",
+            value: "Please <#{command.github_auth_url}|sign in to GitHub>.",
+            short: true
+          }
+        ]
+      }]
+    }
+  end
+
+  def authenticate_github_response(command)
+    {
+      text: "You are half the way done",
+      attachments: [{
+        color: "#ffa807",
+        mrkdwn_in: %w{text pretext fields},
+        attachment_type: "default",
+        fields: [
+          {
+            title: "Heroku",
+            value: "You're authenticated as #{email} on Heroku.",
+            short: true
+          },
+          {
+            title: "GitHub",
+            value: "Please <#{command.github_auth_url}|sign in to GitHub>.",
+            short: true
+          }
+        ]
+      }]
+    }
+  end
+
   def stub_please_sign_into_heroku
-    message = "Please <#{command.slack_auth_url}|sign in to Heroku>."
-    slack_body = slack_body(message)
-    stub_slack_request(slack_body)
+    body = authenticate_heroku_response(command).to_json
+    stub_slack_request(body)
   end
 
   def stub_please_sign_into_github
-    message = "You're not authenticated with GitHub yet. " \
-                "<#{command.github_auth_url}|Fix that>."
-    slack_body = slack_body(message)
-    stub_slack_request(slack_body)
+    body = authenticate_github_response(command).to_json
+    stub_slack_request(body)
   end
 end
