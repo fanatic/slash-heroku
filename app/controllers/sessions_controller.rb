@@ -60,10 +60,7 @@ class SessionsController < ApplicationController
       @after_success_url = decoded[:uri] if decoded[:uri] =~ /^slack:/
 
       command = Command.find(decoded[:token])
-      if command
-        SignupCompleteJob.perform_later(user_id: session[:user_id],
-                                        command_id: command.id)
-      end
+      execute_command(command) if command
     end
   rescue StandardError, ActiveRecord::RecordNotFound
     nil
@@ -75,6 +72,14 @@ class SessionsController < ApplicationController
   end
 
   private
+
+  def execute_command(command)
+    unless command.user_id
+      command.user_id = session[:user_id]
+      command.save
+    end
+    CommandExecutorJob.perform_later(command_id: command.id)
+  end
 
   def after_successful_heroku_user_setup_path
     "/auth/complete?origin=#{omniauth_origin}"
