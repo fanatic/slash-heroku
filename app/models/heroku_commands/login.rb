@@ -72,7 +72,7 @@ module HerokuCommands
 
     def github_response
       text = if user.github_configured?
-               "You're authenticated as #{user.github_login} on GitHub."
+               "You're authenticated as #{github_link_for_slack} on GitHub."
              else
                "Please <#{command.github_auth_url}|sign in to GitHub>."
              end
@@ -82,6 +82,10 @@ module HerokuCommands
         value: text,
         short: true
       }
+    end
+
+    def github_link_for_slack
+      "<https://github.com/#{user.github_login}|#{user.github_login}>"
     end
   end
 end
