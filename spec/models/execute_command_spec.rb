@@ -216,11 +216,49 @@ RSpec.describe ExecuteCommand, type: :model do
   end
 
   def authenticate_heroku_response(command)
-    {:text=>"Let's setup this account", :attachments=>[{:color=>"#f00a1f", :mrkdwn_in=>["text", "pretext", "fields"], :attachment_type=>"default", :fields=>[{:title=>"Heroku", :value=>"Please <#{command.slack_auth_url}|sign in to Heroku>.", :short=>true}, {:title=>"GitHub", :value=>"Please <#{command.github_auth_url}|sign in to GitHub>.", :short=>true}]}]}
+    {
+      text: "Let's setup this account",
+      attachments: [{
+        color: "#f00a1f",
+        mrkdwn_in: %w{text pretext fields},
+        attachment_type: "default",
+        fields: [
+          {
+            title: "Heroku",
+            value: "Please <#{command.slack_auth_url}|sign in to Heroku>.",
+            short: true
+          },
+          {
+            title: "GitHub",
+            value: "Please <#{command.github_auth_url}|sign in to GitHub>.",
+            short: true
+          }
+        ]
+      }]
+    }
   end
 
   def authenticate_github_response(command)
-    {:text=>"You are half the way done", :attachments=>[{:color=>"#ffa807", :mrkdwn_in=>["text", "pretext", "fields"], :attachment_type=>"default", :fields=>[{:title=>"Heroku", :value=>"You're authenticated as #{email} on Heroku.", :short=>true}, {:title=>"GitHub", :value=>"Please <#{command.github_auth_url}|sign in to GitHub>.", :short=>true}]}]}
+    {
+      text: "You are half the way done",
+      attachments: [{
+        color: "#ffa807",
+        mrkdwn_in: %w{text pretext fields},
+        attachment_type: "default",
+        fields: [
+          {
+            title: "Heroku",
+            value: "You're authenticated as #{email} on Heroku.",
+            short: true
+          },
+          {
+            title: "GitHub",
+            value: "Please <#{command.github_auth_url}|sign in to GitHub>.",
+            short: true
+          }
+        ]
+      }]
+    }
   end
 
   def stub_please_sign_into_heroku

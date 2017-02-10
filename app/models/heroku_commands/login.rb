@@ -28,11 +28,7 @@ module HerokuCommands
         "attachments": [
           {
             "color": response_color,
-            "mrkdwn_in": [
-              "text",
-              "pretext",
-              "fields"
-            ],
+            "mrkdwn_in": %w{text pretext fields},
             "attachment_type": "default",
             "fields": [heroku_response, github_response]
           }
@@ -61,11 +57,11 @@ module HerokuCommands
     end
 
     def heroku_response
-      if user.heroku_configured?
-        text = "You're authenticated as #{user.heroku_email} on Heroku."
-      else
-        text = "Please <#{command.slack_auth_url}|sign in to Heroku>."
-      end
+      text = if user.heroku_configured?
+               "You're authenticated as #{user.heroku_email} on Heroku."
+             else
+               "Please <#{command.slack_auth_url}|sign in to Heroku>."
+             end
 
       {
         "title": "Heroku",
@@ -75,11 +71,11 @@ module HerokuCommands
     end
 
     def github_response
-      if user.github_configured?
-        text = "You're authenticated as #{user.github_login} on GitHub."
-      else
-        text = "Please <#{command.github_auth_url}|sign in to GitHub>."
-      end
+      text = if user.github_configured?
+               "You're authenticated as #{user.github_login} on GitHub."
+             else
+               "Please <#{command.github_auth_url}|sign in to GitHub>."
+             end
 
       {
         "title": "GitHub",
