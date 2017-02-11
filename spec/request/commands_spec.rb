@@ -16,9 +16,9 @@ RSpec.describe "SlashHeroku /commands", type: :request do
     post "/commands", params: default_params(text: "ps")
     expect(status).to eql(200)
     response_body = JSON.parse(body)
-    expect(response_body["response_type"]).to eql("in_channel")
+    expect(response_body["response_type"]).to eql("ephemeral")
 
-    text = "Let's setup this account"
+    text = "Connect your Heroku account"
     link = "Please <https://www.example.com/auth/slack?origin=" \
            "#{Command.last.encoded_origin_hash}&team=T123YG08V|" \
            "sign in to Heroku>."

@@ -24,7 +24,7 @@ module HerokuCommands
 
     def user_response
       {
-        response_type: "in_channel",
+        response_type: "ephemeral",
         text: response_main_text,
         attachments: [
           {
@@ -41,9 +41,9 @@ module HerokuCommands
       if onboarded?
         "Your account is fully setup"
       elsif onboarding?
-        "You are half the way done"
+        "Connect your GitHub account"
       else
-        "Let's setup this account"
+        "Connect your Heroku account"
       end
     end
 

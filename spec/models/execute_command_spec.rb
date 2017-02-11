@@ -217,8 +217,8 @@ RSpec.describe ExecuteCommand, type: :model do
 
   def authenticate_heroku_response(command)
     {
-      response_type: "in_channel",
-      text: "Let's setup this account",
+      response_type: "ephemeral",
+      text: "Connect your Heroku account",
       attachments: [{
         color: "#f00a1f",
         mrkdwn_in: %w{text pretext fields},
@@ -241,8 +241,8 @@ RSpec.describe ExecuteCommand, type: :model do
 
   def authenticate_github_response(command)
     {
-      response_type: "in_channel",
-      text: "You are half the way done",
+      response_type: "ephemeral",
+      text: "Connect your GitHub account",
       attachments: [{
         color: "#ffa807",
         mrkdwn_in: %w{text pretext fields},
