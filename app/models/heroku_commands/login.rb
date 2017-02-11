@@ -39,7 +39,7 @@ module HerokuCommands
 
     def response_main_text
       if onboarded?
-        "Your account is fully setup"
+        "You're all set"
       elsif onboarding?
         "Connect your GitHub account"
       else
@@ -49,7 +49,7 @@ module HerokuCommands
 
     def response_color
       if onboarded?
-        "#46ea1f"
+        "#36a64f"
       elsif onboarding?
         "#ffa807"
       else
