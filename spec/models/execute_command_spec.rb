@@ -250,7 +250,7 @@ RSpec.describe ExecuteCommand, type: :model do
         fields: [
           {
             title: "Heroku",
-            value: "You're authenticated as #{email}.",
+            value: "You're #{email}.",
             short: true
           },
           {
