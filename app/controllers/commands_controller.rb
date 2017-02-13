@@ -16,7 +16,7 @@ class CommandsController < ApplicationController
   private
 
   def handle_command
-    if current_user && current_user.heroku_token
+    if current_user
       command = current_user.create_command_for(params)
       command.default_response.to_json
     else
