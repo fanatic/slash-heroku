@@ -217,7 +217,8 @@ RSpec.describe ExecuteCommand, type: :model do
 
   def authenticate_heroku_response(command)
     {
-      text: "Let's setup this account",
+      response_type: "ephemeral",
+      text: "Connect your Heroku account",
       attachments: [{
         color: "#f00a1f",
         mrkdwn_in: %w{text pretext fields},
@@ -225,7 +226,7 @@ RSpec.describe ExecuteCommand, type: :model do
         fields: [
           {
             title: "Heroku",
-            value: "Please <#{command.slack_auth_url}|sign in to Heroku>.",
+            value: "Please <#{command.heroku_auth_url}|sign in to Heroku>.",
             short: true
           },
           {
@@ -240,7 +241,8 @@ RSpec.describe ExecuteCommand, type: :model do
 
   def authenticate_github_response(command)
     {
-      text: "You are half the way done",
+      response_type: "ephemeral",
+      text: "Connect your GitHub account",
       attachments: [{
         color: "#ffa807",
         mrkdwn_in: %w{text pretext fields},
@@ -248,7 +250,7 @@ RSpec.describe ExecuteCommand, type: :model do
         fields: [
           {
             title: "Heroku",
-            value: "You're authenticated as #{email} on Heroku.",
+            value: "You're #{email}.",
             short: true
           },
           {
