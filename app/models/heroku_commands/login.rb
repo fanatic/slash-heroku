@@ -24,6 +24,7 @@ module HerokuCommands
 
     def user_response
       {
+        response_type: "ephemeral",
         text: response_main_text,
         attachments: [
           {
@@ -37,19 +38,19 @@ module HerokuCommands
     end
 
     def response_main_text
-      if user.onboarded?
-        "Your account is fully setup"
-      elsif user.onboarding?
-        "You are half the way done"
+      if onboarded?
+        "You're all set"
+      elsif onboarding?
+        "Connect your GitHub account"
       else
-        "Let's setup this account"
+        "Connect your Heroku account"
       end
     end
 
     def response_color
-      if user.onboarded?
-        "#46ea1f"
-      elsif user.onboarding?
+      if onboarded?
+        "#36a64f"
+      elsif onboarding?
         "#ffa807"
       else
         "#f00a1f"
@@ -57,10 +58,10 @@ module HerokuCommands
     end
 
     def heroku_response
-      text = if user.heroku_configured?
-               "You're authenticated as #{user.heroku_email} on Heroku."
+      text = if heroku_configured?
+               "You're #{user.heroku_email}."
              else
-               "Please <#{command.slack_auth_url}|sign in to Heroku>."
+               "Please <#{command.heroku_auth_url}|sign in to Heroku>."
              end
 
       {
@@ -71,8 +72,8 @@ module HerokuCommands
     end
 
     def github_response
-      text = if user.github_configured?
-               "You're authenticated as #{github_link_for_slack} on GitHub."
+      text = if github_configured?
+               "You're #{github_link_for_slack}."
              else
                "Please <#{command.github_auth_url}|sign in to GitHub>."
              end
@@ -86,6 +87,22 @@ module HerokuCommands
 
     def github_link_for_slack
       "<https://github.com/#{user.github_login}|#{user.github_login}>"
+    end
+
+    def onboarded?
+      user && user.onboarded?
+    end
+
+    def onboarding?
+      user && user.onboarding?
+    end
+
+    def heroku_configured?
+      user && user.heroku_configured?
+    end
+
+    def github_configured?
+      user && user.github_configured?
     end
   end
 end
