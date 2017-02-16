@@ -19,6 +19,7 @@ RSpec.describe Parse::Releases do
           "api.github.com/repos/atmos/slash-heroku/deployments"
         )
 
+      status = Parse::Release::STATUS_SUCCEEDED
       releases = Parse::Releases.new(releases, deploys, "heroku/reponame")
       releases_list = releases.markdown
       expect(releases_list.split("\n").size).to eql(10)
@@ -26,12 +27,12 @@ RSpec.describe Parse::Releases do
       # rubocop:disable LineLength
       branch_link = "<https://github.com/heroku/reponame/tree/more-debug-info|more-debug-info>"
       expect(releases_list)
-        .to include("v149 - Deploy e046008 - #{branch_link} - corey@heroku.com")
+        .to include("v149 - #{status} - Deploy e046008 - #{branch_link} - corey@heroku.com")
       expect(releases_list)
-        .to include("v146 - Update REDIS by heroku-redis - heroku-redis@addons.heroku.com")
+        .to include("v146 - #{status} - Update REDIS by heroku-redis - heroku-redis@addons.heroku.com")
       sha_link = "<https://github.com/heroku/reponame/tree/a2fa2f9|a2fa2f9>"
       expect(releases_list)
-        .to include("v140 - Deploy a2fa2f9 - #{sha_link} - corey@heroku.com - 5 days")
+        .to include("v140 - #{status} - Deploy a2fa2f9 - #{sha_link} - corey@heroku.com - 5 days")
       # rubocop:enable LineLength
     end
   end

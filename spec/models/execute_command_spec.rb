@@ -165,18 +165,19 @@ RSpec.describe ExecuteCommand, type: :model do
       stub_releases(command.user.heroku_token)
 
       # rubocop:disable Metrics/LineLength
+      status = Parse::Release::STATUS_SUCCEEDED
       branch_link = "<https://github.com/atmos/slash-heroku/tree/more-debug-info|more-debug-info>"
       list_of_releases =
-        "v149 - Deploy e046008 - #{branch_link} - corey@heroku.com - 16 days\n"\
-        "v148 - Deploy 6464ae9 - #{branch_link} - corey@heroku.com - 16 days\n"\
-        "v147 - Deploy 449afb0 - #{branch_link} - corey@heroku.com - 16 days\n"\
-        "v146 - Update REDIS by heroku-redis - heroku-redis@addons.heroku.com - 17 days\n"\
-        "v145 - Update DATABASE by heroku-postgresql - heroku-postgresql@addons.heroku.com - 17 days\n"\
-        "v144 - Deploy edd2334 - #{branch_link} - corey@heroku.com - 18 days\n"\
-        "v143 - Deploy f7c319e - #{branch_link} - corey@heroku.com - 18 days\n"\
-        "v142 - Deploy f7c319e - #{branch_link} - corey@heroku.com - 19 days\n"\
-        "v141 - Deploy ac0f775 - #{branch_link} - corey@heroku.com - 19 days\n"\
-        "v140 - Deploy a2fa2f9 - <https://github.com/atmos/slash-heroku/tree/a2fa2f9|a2fa2f9> - corey@heroku.com - 19 days"
+        "v149 - #{status} - Deploy e046008 - #{branch_link} - corey@heroku.com - 16 days\n"\
+        "v148 - #{status} - Deploy 6464ae9 - #{branch_link} - corey@heroku.com - 16 days\n"\
+        "v147 - #{status} - Deploy 449afb0 - #{branch_link} - corey@heroku.com - 16 days\n"\
+        "v146 - #{status} - Update REDIS by heroku-redis - heroku-redis@addons.heroku.com - 17 days\n"\
+        "v145 - #{status} - Update DATABASE by heroku-postgresql - heroku-postgresql@addons.heroku.com - 17 days\n"\
+        "v144 - #{status} - Deploy edd2334 - #{branch_link} - corey@heroku.com - 18 days\n"\
+        "v143 - #{status} - Deploy f7c319e - #{branch_link} - corey@heroku.com - 18 days\n"\
+        "v142 - #{status} - Deploy f7c319e - #{branch_link} - corey@heroku.com - 19 days\n"\
+        "v141 - #{status} - Deploy ac0f775 - #{branch_link} - corey@heroku.com - 19 days\n"\
+        "v140 - #{status} - Deploy a2fa2f9 - <https://github.com/atmos/slash-heroku/tree/a2fa2f9|a2fa2f9> - corey@heroku.com - 19 days"
 
       title = "<https://dashboard.heroku.com/pipelines/slash-heroku|slash-heroku>"\
               " - Recent staging releases"

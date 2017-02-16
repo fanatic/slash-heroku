@@ -43,6 +43,9 @@ module Parse
 
   # Returns information about a single release
   class Release
+    STATUS_FAILED = ":icon_failure:".freeze
+    STATUS_SUCCEEDED = ":icon_success:".freeze
+
     include ActionView::Helpers::DateHelper
     attr_reader :release_info, :github_refs, :name_with_owner
 
@@ -53,7 +56,7 @@ module Parse
     end
 
     def row_text
-      "v#{version} - #{description} - " \
+      "v#{version} - #{status} - #{description} - " \
         "#{optional_branch_link}" \
           "#{email} - " \
             "#{created_at}"
@@ -70,6 +73,10 @@ module Parse
 
     def email
       release_info["user"]["email"]
+    end
+
+    def status
+      release_info["status"] == "failed" ? STATUS_FAILED : STATUS_SUCCEEDED
     end
 
     def created_at
