@@ -86,6 +86,9 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     stub_account_info(heroku_token)
     stub_pipeline_info(heroku_token)
     stub_app_info(heroku_token)
+    response_info = fixture_data("kolkrabbi.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/repository") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://kolkrabbi.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/repository") # rubocop:disable Metrics/LineLength
+      .to_return(status: 200, body: response_info)
     stub_request(:get, "https://api.heroku.com/apps/27bde4b5-b431-4117-9302-e533b887faaa/config-vars")
       .with(headers: default_heroku_headers(command.user.heroku_token))
       .to_return(status: 403, body: { id: "two_factor" }.to_json, headers: {})
@@ -116,6 +119,9 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
     stub_pipeline_info(heroku_token)
     stub_app_info(heroku_token)
+    response_info = fixture_data("kolkrabbi.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/repository") # rubocop:disable Metrics/LineLength
+    stub_request(:get, "https://kolkrabbi.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/repository") # rubocop:disable Metrics/LineLength
+      .to_return(status: 200, body: response_info)
 
     # Fake the lock
     Lock.new("escobar-app-27bde4b5-b431-4117-9302-e533b887faaa").lock
@@ -129,6 +135,33 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
       }
     ]
     expect(response[:attachments]).to eql(attachments)
+  end
+
+  it "responds with an error message if the pipeline is not connected to GitHub" do
+    command = command_for("deploy hubot to production")
+    heroku_command = HerokuCommands::Deploy.new(command)
+    heroku_command.user.github_token = SecureRandom.hex(24)
+    heroku_command.user.save
+
+    heroku_token = command.user.heroku_token
+
+    stub_pipeline_info(heroku_token)
+    stub_app_info(heroku_token)
+    stub_request(:get, "https://kolkrabbi.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/repository") # rubocop:disable Metrics/LineLength
+      .to_return(status: 404, body: {}.to_json)
+
+    expect(command.task).to eql("deploy")
+    expect(command.subtask).to eql("default")
+
+    heroku_command = HerokuCommands::Deploy.new(command)
+
+    response = heroku_command.run
+
+    expect(response[:response_type]).to eql("in_channel")
+    expect(response[:text]).to eql(
+      "<https://dashboard.heroku.com/pipelines/" \
+      "531a6f90-bd76-4f5c-811f-acc8a9f4c111|Connect your pipeline to GitHub>"
+    )
   end
 
   it "responds with an error message if the pipeline contains more than one app" do
