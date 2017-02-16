@@ -29,6 +29,8 @@ module HerokuCommands
     def deploy_application
       if pipeline_name && !pipeline
         response_for("Unable to find a pipeline called #{pipeline_name}")
+      elsif !pipeline.environments[environment]
+        response_for("Unable to find an environment called #{environment}")
       else
         DeploymentRequest.process(self)
       end
