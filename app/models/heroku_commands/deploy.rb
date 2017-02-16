@@ -30,7 +30,7 @@ module HerokuCommands
       if pipeline_missing?
         response_for("Unable to find a pipeline called #{pipeline_name}")
       elsif pipeline_environment_missing?
-        response_for(error_message_for_unknown_pipeline)
+        response_for(error_message_for_unknown_pipeline_environment)
       else
         DeploymentRequest.process(self)
       end
@@ -70,7 +70,7 @@ module HerokuCommands
       user.pipeline_for(pipeline_name)
     end
 
-    def error_message_for_unknown_pipeline
+    def error_message_for_unknown_pipeline_environment
       "Unable to find an environment called #{environment}. " \
         "Available environments: #{pipeline.sorted_environments.join(', ')}"
     end
