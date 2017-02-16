@@ -32,6 +32,25 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(response).to be_empty
   end
 
+  it "alerts you if the environment is not found" do
+    command = build_command("deploy hubot to mars")
+    stub_deploy_command(command.user.heroku_token)
+
+    expect(command.task).to eql("deploy")
+    expect(command.subtask).to eql("default")
+
+    heroku_command = HerokuCommands::Deploy.new(command)
+
+    response = heroku_command.run
+
+    expect(heroku_command.pipeline_name).to eql("hubot")
+    expect(response[:response_type]).to eql("in_channel")
+    expect(response[:text]).to eql(
+      "Unable to find an environment called mars. " \
+      "Available environments: production"
+    )
+  end
+
   it "responds to you if required commit statuses aren't present" do
     command = build_command("deploy hubot to production")
     heroku_token = command.user.heroku_token
