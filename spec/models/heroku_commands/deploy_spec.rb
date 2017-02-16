@@ -46,7 +46,8 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(heroku_command.pipeline_name).to eql("hubot")
     expect(response[:response_type]).to eql("in_channel")
     expect(response[:text]).to eql(
-      "Unable to find an environment called mars"
+      "Unable to find an environment called mars. " \
+      "Available environments: production"
     )
   end
 
