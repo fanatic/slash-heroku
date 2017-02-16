@@ -231,7 +231,7 @@ module Helpers
 
         return unless chosen_app_name
         chosen_app = apps.detect { |app| app[:name] == chosen_app_name }
-        stub_chosen_app(chosen_app, repo)
+        stub_chosen_app(chosen_app, repo, pipeline)
       end
 
       def stubbed_apps_hash_from_names(app_names)
@@ -242,7 +242,7 @@ module Helpers
         end
       end
 
-      def stub_chosen_app(chosen_app, repo)
+      def stub_chosen_app(chosen_app, repo, pipeline)
         stub_2fa_check(chosen_app[:id])
         stub_mapping_pipeline_repository(pipeline[:id], repo)
 
