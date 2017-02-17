@@ -104,7 +104,10 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(response[:text]).to be_nil
     expect(response[:response_type]).to be_nil
     attachments = [
-      { text: "<https://dashboard.heroku.com/apps/hubot|hubot> requires a second factor." }
+      {
+        text: "<https://dashboard.heroku.com/apps/hubot|hubot> " \
+        "requires a second factor for access."
+      }
     ]
     expect(response[:attachments]).to eql(attachments)
   end

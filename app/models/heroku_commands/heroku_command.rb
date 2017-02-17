@@ -46,7 +46,8 @@ module HerokuCommands
       {
         attachments: [
           { text: "<#{error.dashboard_url}|" \
-                  "#{error.build_request.app.name}> requires a second factor." }
+                  "#{error.build_request.app.name}> requires a second factor " \
+                  "for access." }
         ]
       }
     end
