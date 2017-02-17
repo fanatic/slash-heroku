@@ -35,10 +35,11 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
 
   it "alerts you if the environment is not found" do
     command = build_command("deploy hubot to mars")
-    stub_deploy_command(command.user.heroku_token)
 
     expect(command.task).to eql("deploy")
     expect(command.subtask).to eql("default")
+
+    stub_missing_environment_flow("hubot", available_env: "production")
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
@@ -131,18 +132,14 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
   it "responds with an error message if the pipeline is not connected to GitHub" do
     command = command_for("deploy hubot to production")
     heroku_command = HerokuCommands::Deploy.new(command)
-    heroku_command.user.github_token = SecureRandom.hex(24)
+    heroku_command.user.github_token = SecureRandom.hex
     heroku_command.user.save
-
-    heroku_token = command.user.heroku_token
-
-    stub_pipeline_info(heroku_token)
-    stub_app_info(heroku_token)
-    stub_request(:get, "https://kolkrabbi.com/pipelines/531a6f90-bd76-4f5c-811f-acc8a9f4c111/repository") # rubocop:disable Metrics/LineLength
-      .to_return(status: 404, body: {}.to_json)
 
     expect(command.task).to eql("deploy")
     expect(command.subtask).to eql("default")
+
+    pipeline_id = SecureRandom.uuid
+    stub_pipeline_not_connected_to_github_flow(pipeline_id, "hubot")
 
     heroku_command = HerokuCommands::Deploy.new(command)
 
@@ -151,7 +148,7 @@ RSpec.describe HerokuCommands::Deploy, type: :model do
     expect(response[:response_type]).to eql("in_channel")
     expect(response[:text]).to eql(
       "<https://dashboard.heroku.com/pipelines/" \
-      "531a6f90-bd76-4f5c-811f-acc8a9f4c111|Connect your pipeline to GitHub>"
+      "#{pipeline_id}|Connect your pipeline to GitHub>"
     )
   end
 

@@ -151,6 +151,11 @@ module Helpers
         stub_json_request(:get, url, payload.to_json)
       end
 
+      def stub_pipeline_repository_not_found(pipeline_id)
+        url = "https://kolkrabbi.com/pipelines/#{pipeline_id}/repository"
+        stub_json_request(:get, url, {}.to_json, 404)
+      end
+
       def stub_repository(name_with_owner, default_branch = "master")
         stub_json_request(:get,
                           "https://api.github.com/repos/#{name_with_owner}",
@@ -177,6 +182,16 @@ module Helpers
                           200)
       end
 
+      def stub_pipeline_not_connected_to_github_flow(pipeline_id, pipeline_name)
+        pipeline =  { id: pipeline_id, name: pipeline_name }
+        app = { id: SecureRandom.uuid, name: pipeline_name }
+
+        stub_pipelines(pipeline)
+        stub_couplings(pipeline[:id], app)
+
+        stub_pipeline_repository_not_found(pipeline[:id])
+      end
+
       def stub_missing_required_commit_status_flow(pipeline_name, app_name, repo)
         pipeline =  { id: SecureRandom.uuid, name: pipeline_name }
         app = { id: SecureRandom.uuid, name: app_name }
@@ -193,6 +208,15 @@ module Helpers
 
         stub_deployment_conflict(repo)
       end
+
+      def stub_missing_environment_flow(pipeline_name, environments)
+        pipeline =  { id: SecureRandom.uuid, name: pipeline_name }
+        app = { id: SecureRandom.uuid, name: pipeline_name }
+
+        stub_pipelines(pipeline)
+        stub_couplings(pipeline[:id], app, environments[:available_env])
+      end
+
 
       def stub_2fa_locked_app_flow(pipeline_name, app_name)
         pipeline =  { id: SecureRandom.uuid, name: pipeline_name }
