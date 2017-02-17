@@ -72,20 +72,30 @@ module Helpers
         app_names       = args[:app_names]
         chosen_app_name = args[:chosen_app_name]
         repo            = args.fetch(:repo, "atmos/hubot")
+        pipeline_id     = SecureRandom.uuid
 
-        pipeline = { id: SecureRandom.uuid, name: pipeline_name }
+        pipeline = { id: pipeline_id, name: pipeline_name }
 
-        stub_mapping_pipeline_repository(pipeline[:id], repo)
+        stub_mapping_pipeline_repository(pipeline_id, repo)
 
         apps = stubbed_apps_hash_from_names(app_names)
 
         stub_pipelines(pipeline)
-        stub_couplings(pipeline[:id], apps)
+        stub_couplings(pipeline_id, apps)
 
         return unless chosen_app_name
         chosen_app = apps.detect { |app| app[:name] == chosen_app_name }
 
-        stub_chosen_app(chosen_app, repo, pipeline)
+        stub_chosen_app(chosen_app, repo, pipeline_id)
+      end
+
+      def stub_chosen_app(chosen_app, repo, pipeline_id)
+        stub_2fa_check(chosen_app[:id])
+        stub_mapping_pipeline_repository(pipeline_id, repo)
+
+        stub_repository(repo)
+        stub_required_contexts(repo)
+        stub_deployment_status(repo)
       end
 
       def stubbed_apps_hash_from_names(app_names)
@@ -94,15 +104,6 @@ module Helpers
           stub_heroku_app(id, app_name)
           { id: id, name: app_name }
         end
-      end
-
-      def stub_chosen_app(chosen_app, repo, pipeline)
-        stub_2fa_check(chosen_app[:id])
-        stub_mapping_pipeline_repository(pipeline[:id], repo)
-
-        stub_repository(repo)
-        stub_required_contexts(repo)
-        stub_deployment_status(repo)
       end
 
       def stub_successful_deployment_flow(pipeline_name)
