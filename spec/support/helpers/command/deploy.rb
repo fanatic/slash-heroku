@@ -199,6 +199,9 @@ module Helpers
         app = { id: SecureRandom.uuid, name: app_name }
 
         stub_pipelines(pipeline)
+
+        stub_mapping_pipeline_repository(pipeline[:id], "heroku/#{app_name}")
+
         stub_couplings(pipeline[:id], app)
         stub_heroku_app(app[:id], app[:name])
         stub_2fa_check(app[:id], locked: true)
@@ -209,6 +212,9 @@ module Helpers
         app = { id: SecureRandom.uuid, name: app_name }
 
         stub_pipelines(pipeline)
+
+        stub_mapping_pipeline_repository(pipeline[:id], "heroku/#{app_name}")
+
         stub_couplings(pipeline[:id], app)
         stub_heroku_app(app[:id], app[:name])
         stub_2fa_check(app[:id])
@@ -224,6 +230,9 @@ module Helpers
         repo            = args[:repo] || "atmos/hubot"
 
         pipeline = { id: SecureRandom.uuid, name: pipeline_name }
+
+        stub_mapping_pipeline_repository(pipeline[:id], repo)
+
         apps = stubbed_apps_hash_from_names(app_names)
 
         stub_pipelines(pipeline)
