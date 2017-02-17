@@ -31,7 +31,7 @@ module Parse
 
     def sha_and_ref_hash
       @sha_and_ref_hash ||=
-        deploy_list.each_with_object(Hash.new(0)) do |deploy, hash|
+        deploy_list.each_with_object({}) do |deploy, hash|
           sha = deploy["sha"]
           shortened_sha = sha[0..6]
           ref = deploy["ref"]
