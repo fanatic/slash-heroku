@@ -39,7 +39,7 @@ RSpec.describe ExecuteCommand, type: :model do
       user.save
       command.user.reload
 
-      stub_deploy_command(command.user.heroku_token)
+      stub_successful_deployment_flow("hubot")
 
       expect(command.task).to eql("deploy")
       expect(command.subtask).to eql("default")
